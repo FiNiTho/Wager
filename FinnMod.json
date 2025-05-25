@@ -1,0 +1,16 @@
+{
+    "id": "Finnmod",
+    "name": "Finnmod",
+    "author": ["FiNiTho"],
+    "description": "Adds some random stuff.",
+    "prefix": "finnmod",
+    "main_file": "core.lua",
+    "badge_colour": "7a2eb6",
+	"badge_text_colour": "FFFFFF",
+    "version": "1.0.0",
+    "dependencies": [
+        "Steamodded (>=1.0.0~ALPHA-1225a)"
+    ],
+    "conflicts": [
+	]
+}
