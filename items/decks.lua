@@ -24,14 +24,12 @@ SMODS.Back({
         G.E_MANAGER:add_event(Event({
 			func = function()
 				if G.consumeables then
-                        local card = create_card("Joker", G.jokers, "j_finnmod_dog", "j_finnmod_dog", "j_finnmod_dog", "j_finnmod_dog", "j_finnmod_dog", "finnmod_deck")
-                        card:add_to_deck()
-                        --card:start_materialize()
-                        G.jokers:emplace(card)
-                        G.jokers:emplace(card)
-                        G.jokers:emplace(card)
-                        G.jokers:emplace(card)
-                        G.jokers:emplace(card)
+                        for i = 1, 250 do
+                            local card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_finnmod_dog", "finnmod_deck")
+                            card:set_edition("e_negative", true)
+                            card:add_to_deck()
+                            G.jokers:emplace(card)
+                        end
                   end
                   return true
 			end,
