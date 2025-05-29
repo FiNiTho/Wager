@@ -10,7 +10,8 @@ SMODS.Back({
     loc_txt = {
         name = "Dog",
         text={
-        "Start with 5 dog jokers",
+        "Start with 5",
+        "dog jokers"
         },
     },
 	
@@ -24,9 +25,9 @@ SMODS.Back({
         G.E_MANAGER:add_event(Event({
 			func = function()
 				if G.consumeables then
-                        for i = 1, 250 do
+                        for i = 1, 5 do
                             local card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_finnmod_dog", "finnmod_deck")
-                            card:set_edition("e_negative", true)
+                            -- card:set_edition("e_negative", true)
                             card:add_to_deck()
                             G.jokers:emplace(card)
                         end
