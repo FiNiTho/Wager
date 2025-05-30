@@ -12,9 +12,9 @@ SMODS.Joker {
         name = 'Gamble',
         text = {
             "After {C:attention}#1# rounds{} it has a",
-            "{C:attention}#6#% chance{} to get {C:green}uncommen{}",
-            "and a {C:attention}#5#% chance{} to get {C:red}rare{}",
-            "and a {C:attention}#4#% chance{} to get {C:purple}legendary{}",
+            "{C:attention}#5#% chance{} to get {C:green}uncommen{}",
+            "and a {C:attention}#4#% chance{} to get {C:red}rare{}",
+            "and a {C:attention}#3#% chance{} to get {C:purple}legendary{}",
         }
     },
     atlas = 'gamble',
@@ -33,8 +33,8 @@ SMODS.Joker {
             roundCount = 2, 
             odds = 100,
             legendaryOdds = 2,
-            rareOdds = 23,
-            uncommenOdds = 75
+            rareOdds = 35,
+            uncommenOdds = 63
         }
     },
 
@@ -89,188 +89,51 @@ SMODS.Joker {
             if number <= card.ability.extra.legendaryOdds then
                 G.E_MANAGER:add_event(Event({
                     trigger = 'after',
-                    delay = 0.5,  -- slightly after removal to avoid overlap
+                    delay = 0.35,  -- slightly after removal to avoid overlap
                     blockable = false,
                     func = function()
-                        if G.consumeables then
-                        -- Define your list of possible Joker IDs
-                        local legendary_joker_ids = {
-                            "j_caino",
-                            "j_chicot",
-                            "j_perkeo",
-                            "j_triboulet",
-                            "j_yorick",
-                        }
-
-                        local random_id = legendary_joker_ids[math.random(#legendary_joker_ids)]
-
+                        
                         -- Create and add the Joker card
-                        local new_card = create_card("Joker", G.jokers, nil, nil, nil, nil, random_id)
+                        local new_card = create_card("Joker", G.jokers, true, nil, nil, nil)
                         new_card:add_to_deck()
                         G.jokers:emplace(new_card)
-                    end
                     return true
                     end,
                 }))
             elseif number <= card.ability.extra.rareOdds then
                 G.E_MANAGER:add_event(Event({
                     trigger = 'after',
-                    delay = 0.5,  -- slightly after removal to avoid overlap
+                    delay = 0.35,  -- slightly after removal to avoid overlap
                     blockable = false,
                     func = function()
-                        if G.consumeables then
-                        -- Define your list of possible Joker IDs
-                        local rare_joker_ids = {
-                            "j_ancient",
-                            "j_baron",
-                            "j_baseball",
-                            "j_blueprint",
-                            "j_brainstorm",
-                            "j_burnt",
-                            "j_campfire",
-                            "j_dna",
-                            "j_drivers_license",
-                            "j_duo",
-                            "j_family",
-                            "j_hit_the_road",
-                            "j_obelisk",
-                            "j_order",
-                            "j_stuntman",
-                            "j_tribe",
-                            "j_trio",
-                            "j_vagabond",
-                            "j_wee", 
-                        }
-
-                        -- Filter only the unlocked Jokers
-                        local rare_unlocked_jokers = {}
-                        for _, id in ipairs(rare_joker_ids) do
-                            if G.P_CENTERS[id] and G.P_CENTERS[id].unlocked then
-                                table.insert(rare_unlocked_jokers, id)
-                            end
-                        end
-
-                        -- Only proceed if we have any unlocked Jokers
-                        if #rare_unlocked_jokers > 0 then
-                            local random_id = rare_unlocked_jokers[math.random(#rare_unlocked_jokers)]
-
-                            -- Create and add the Joker card
-                            local new_card = create_card("Joker", G.jokers, nil, nil, nil, nil, random_id)
-                            new_card:add_to_deck()
-                            G.jokers:emplace(new_card)
-                        else
-                            local new_card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_joker")
-                            new_card:add_to_deck()
-                            G.jokers:emplace(new_card)
-                        end
-                    end
+                        -- Create and add the Joker card
+                        local new_card = create_card("Joker", G.jokers, nil, 1, nil, nil)
+                        new_card:add_to_deck()
+                        G.jokers:emplace(new_card)
                     return true
                     end,
                 }))
             else
                 G.E_MANAGER:add_event(Event({
                     trigger = 'after',
-                    delay = 0.5,  -- slightly after removal to avoid overlap
+                    delay = 0.35,  -- slightly after removal to avoid overlap
                     blockable = false,
                     func = function()
-                        if G.consumeables then
-                        -- Define your list of possible Joker IDs
-                        local uncommen_joker_ids = {
-                            "j_acrobat",
-                            "j_astronomer",
-                            "j_blackboard",
-                            "j_bloodstone",
-                            "j_bootstraps",
-                            "j_bull",
-                            "j_burglar",
-                            "j_card_sharp",
-                            "j_cartomancer",
-                            "j_castle",
-                            "j_certificate",
-                            "j_cloud_9",
-                            "j_constellation",
-                            "j_diet_cola",
-                            "j_dusk",
-                            "j_erosion",
-                            "j_fibonacci",
-                            "j_flash",
-                            "j_flower_pot",
-                            "j_gift",
-                            "j_glass",
-                            "j_hack",
-                            "j_hiker",
-                            "j_hologram",
-                            "j_idol",
-                            "j_loyalty_card",
-                            "j_luchador",
-                            "j_lucky_cat",
-                            "j_madness",
-                            "j_marble",
-                            "j_matador",
-                            "j_merry_andy",
-                            "j_midas_mask",
-                            "j_mime",
-                            "j_mr_bones",
-                            "j_onyx_agate",
-                            "j_oops",
-                            "j_pareidolia",
-                            "j_ramen",
-                            "j_ring_master",
-                            "j_rocket",
-                            "j_rough_gem",
-                            "j_seance",
-                            "j_seeing_double",
-                            "j_selzer",
-                            "j_shortcut",
-                            "j_smeared",
-                            "j_sock_and_buskin",
-                            "j_space",
-                            "j_steel_joker",
-                            "j_stencil",
-                            "j_stone",
-                            "j_throwback",
-                            "j_to_the_moon",
-                            "j_trading",
-                            "j_trousers",
-                            "j_troubadour",
-                            "j_turtle_bean",
-                            "j_vampire",
-                            "j_sixth_sense",
-                            "j_ceremonial",
-
-                            "j_finnmod_dog",
-                        }
-
-                        -- Filter only the unlocked Jokers
-                        local uncommen_unlocked_jokers = {}
-                        for _, id in ipairs(uncommen_joker_ids) do
-                            if G.P_CENTERS[id] and G.P_CENTERS[id].unlocked then
-                                table.insert(uncommen_unlocked_jokers, id)
-                            end
-                        end
-
-                        -- Only proceed if we have any unlocked Jokers
-                        if #uncommen_unlocked_jokers > 0 then
-                            local random_id = uncommen_unlocked_jokers[math.random(#uncommen_unlocked_jokers)]
-
-                            -- Create and add the Joker card
-                            local new_card = create_card("Joker", G.jokers, nil, nil, nil, nil, random_id)
-                            new_card:add_to_deck()
-                            G.jokers:emplace(new_card)
-                        else
-                            local new_card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_joker")
-                            new_card:add_to_deck()
-                            G.jokers:emplace(new_card)
-                        end
-                    end
+                        local new_card = create_card("Joker", G.jokers, nil, 0.8, nil, nil)
+                        new_card:add_to_deck()
+                        G.jokers:emplace(new_card)
                     return true
                     end,
                 }))
             end
         end
-        return { message = "-1 round" }
+        if card.ability.extra.roundCount > 0 then
+            return { message = card.ability.extra.roundCount .. "/2"}
+        else
+        return {  }
+        end
+        end
     end
-end
 }
 
 -- Dog
@@ -283,7 +146,6 @@ SMODS.Atlas {
 
 SMODS.Sound({key = "arf", path = "arf.ogg",})
 SMODS.Sound({key = "arfBoom", path = "arfBoom.ogg",})
-
 
 SMODS.Joker {
     key = 'dog',
