@@ -55,6 +55,13 @@ for _, file in ipairs(files) do
 	f()
 end
 
+SMODS.Atlas({
+	key = "modicon",
+	path = "modicon.png",
+	px = 34,
+	py = 34,
+})
+
 
 ----------------------------------------------------------
 ----------- MOD CODE END ----------------------------------

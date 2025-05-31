@@ -12,9 +12,9 @@ SMODS.Joker {
         name = 'Gamble',
         text = {
             "After {C:attention}#1# rounds{} it has a",
-            "{C:attention}#5#% chance{} to get {C:green}uncommen{}",
-            "and a {C:attention}#4#% chance{} to get {C:red}rare{}",
-            "and a {C:attention}#3#% chance{} to get {C:purple}legendary{}",
+            "{C:green}#5#%{} chance to get {C:uncommon}uncommon{}",
+            "{C:green}#4#%{} chance to get {C:rare}rare{}",
+            "{C:green}#3#%{} chance to get {C:legendary,E:1}legendary{}",
         }
     },
     atlas = 'gamble',
@@ -55,83 +55,199 @@ SMODS.Joker {
     end,
 
     calculate = function(self, card, context)
-    if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
-        card.ability.extra.roundCount = card.ability.extra.roundCount - 1
+        if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
+            card.ability.extra.roundCount = card.ability.extra.roundCount - 1
 
-        if card.ability.extra.roundCount <= 0 then
-            -- Remove the card
-            G.E_MANAGER:add_event(Event({
-                func = function()
-                    play_sound('tarot1')
-                    card.T.r = -0.2
-                    card:juice_up(0.3, 0.4)
-                    card.states.drag.is = true
-                    card.children.center.pinch.x = true
-
-                    -- Schedule actual removal after 0.3 seconds delay
+            if card.ability.extra.roundCount <= 0 then
+                local number = math.random(card.ability.extra.odds)
+                if number <= card.ability.extra.legendaryOdds then
                     G.E_MANAGER:add_event(Event({
                         trigger = 'after',
-                        delay = 0.3,
+                        delay = 0.1,
                         blockable = false,
                         func = function()
-                            G.jokers:remove_card(card)
-                            card:remove()
-                            card = nil
-                            return true
-                        end
+                            
+                            -- Create and add the Joker card
+                            local new_card = create_card("Joker", G.jokers, true, nil, nil, nil)
+                            new_card:add_to_deck()
+                            G.jokers:emplace(new_card)
+                        return true
+                        end,
                     }))
-                    return true
-                end,
-            }))
-
-            -- Get a new card after the fact
-            local number = math.random(card.ability.extra.odds)
-            if number <= card.ability.extra.legendaryOdds then
+                elseif number <= card.ability.extra.rareOdds then
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.1,
+                        blockable = false,
+                        func = function()
+                            -- Create and add the Joker card
+                            local new_card = create_card("Joker", G.jokers, nil, 1, nil, nil)
+                            new_card:add_to_deck()
+                            G.jokers:emplace(new_card)
+                        return true
+                        end,
+                    }))
+                else
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.1, 
+                        blockable = false,
+                        func = function()
+                            local new_card = create_card("Joker", G.jokers, nil, 0.8, nil, nil)
+                            new_card:add_to_deck()
+                            G.jokers:emplace(new_card)
+                        return true
+                        end,
+                    }))
+                end
                 G.E_MANAGER:add_event(Event({
-                    trigger = 'after',
-                    delay = 0.35,  -- slightly after removal to avoid overlap
-                    blockable = false,
-                    func = function()
-                        
-                        -- Create and add the Joker card
-                        local new_card = create_card("Joker", G.jokers, true, nil, nil, nil)
-                        new_card:add_to_deck()
-                        G.jokers:emplace(new_card)
-                    return true
-                    end,
+                    ease_dollars(amount)
                 }))
-            elseif number <= card.ability.extra.rareOdds then
                 G.E_MANAGER:add_event(Event({
-                    trigger = 'after',
-                    delay = 0.35,  -- slightly after removal to avoid overlap
-                    blockable = false,
-                    func = function()
-                        -- Create and add the Joker card
-                        local new_card = create_card("Joker", G.jokers, nil, 1, nil, nil)
-                        new_card:add_to_deck()
-                        G.jokers:emplace(new_card)
-                    return true
-                    end,
-                }))
+					func = function()
+						play_sound('tarot1')
+						card.T.r = -0.2
+						card:juice_up(0.3, 0.4)
+						card.states.drag.is = true
+						card.children.center.pinch.x = true
+						-- This part destroys the card.
+						G.E_MANAGER:add_event(Event({
+							trigger = 'after',
+							delay = 0.3,
+							blockable = false,
+							func = function()
+								G.jokers:remove_card(card)
+								card:remove()
+								card = nil
+								return true;
+							end
+						}))
+						return true
+					end
+				}))
+                return {  }
+            end
+            if card.ability.extra.roundCount > 0 then
+                return { message = card.ability.extra.roundCount .. "/2"}
             else
-                G.E_MANAGER:add_event(Event({
-                    trigger = 'after',
-                    delay = 0.35,  -- slightly after removal to avoid overlap
-                    blockable = false,
-                    func = function()
-                        local new_card = create_card("Joker", G.jokers, nil, 0.8, nil, nil)
-                        new_card:add_to_deck()
-                        G.jokers:emplace(new_card)
-                    return true
-                    end,
-                }))
+                return {  }
             end
         end
-        if card.ability.extra.roundCount > 0 then
-            return { message = card.ability.extra.roundCount .. "/2"}
-        else
-        return {  }
-        end
+    end
+}
+
+-- GambleMoney
+SMODS.Atlas {
+    key = 'wager',
+    path = 'wager.png',
+    px = 71,
+    py = 95
+}
+
+SMODS.Joker {
+    key = 'wager',
+    loc_txt = {
+        name = 'Wager',
+        text = {
+            "After {C:attention}#1# round{} it has a",
+            "{C:green}#8#%{} chance to get {C:money,E:1}$#3#{}",
+            "{C:green}#10#%{} chance to get {C:money}$#5#{}",
+            "{C:green}#11#%{} chance to get {C:money}$#6#{}",
+            "{C:green}#12#%{} chance to get {C:money}$#7#{}",
+            "{C:green}#9#%{} chance to get {C:red}$#4#{}",
+        }
+    },
+    atlas = 'wager',
+    rarity = 1,
+    cost = 5,
+    pools = { ["FinnmodAddition"] = true },
+    unlocked = true,
+    discovered = false,
+    blueprint_compact = true,
+    eternal_compact = false,
+    preishable_compact = false,
+
+    pos = { x = 0, y = 0 },
+    config = {
+        extra = {
+            roundCount = 1, 
+            odds = 100,
+            jackpotMoney = 100, lossMoney = -10, hugeWinMoney = 25, 
+            bigWinMoney = 15, smallWinMoney = 8,
+            jackpot = 2,
+            loss = 10,
+            hugeWin = 15, 
+            bigWin = 30,
+            smallWin = 40,
+        }
+    },
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+
+    loc_vars = function(self, info_queue, card)
+        return {
+            vars = {
+                card.ability.extra.roundCount, 
+                card.ability.extra.odds,
+                card.ability.extra.jackpotMoney, card.ability.extra.lossMoney, card.ability.extra.hugeWinMoney, 
+                card.ability.extra.bigWinMoney, card.ability.extra.smallWinMoney,
+                card.ability.extra.jackpot,
+                card.ability.extra.loss,
+                card.ability.extra.hugeWin,
+                card.ability.extra.bigWin,
+                card.ability.extra.smallWin
+            }
+        }
+    end,
+
+    calculate = function(self, card, context)
+        if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
+            card.ability.extra.roundCount = card.ability.extra.roundCount - 1
+
+            if card.ability.extra.roundCount <= 0 then
+                local number = math.random(1, card.ability.extra.odds)
+                local amount = 0
+
+                if number <= card.ability.extra.jackpot then
+                    amount = card.ability.extra.jackpotMoney
+                elseif number <= card.ability.extra.loss then
+                    amount = card.ability.extra.lossMoney
+                elseif number <= card.ability.extra.hugeWin then
+                    amount = card.ability.extra.hugeWinMoney
+                elseif number <= card.ability.extra.bigWin then
+                    amount = card.ability.extra.bigWinMoney
+                else
+                    amount = card.ability.extra.smallWinMoney
+                end
+                G.E_MANAGER:add_event(Event({
+                    ease_dollars(amount)
+                }))
+                G.E_MANAGER:add_event(Event({
+					func = function()
+						play_sound('tarot1')
+						card.T.r = -0.2
+						card:juice_up(0.3, 0.4)
+						card.states.drag.is = true
+						card.children.center.pinch.x = true
+						-- This part destroys the card.
+						G.E_MANAGER:add_event(Event({
+							trigger = 'after',
+							delay = 0.3,
+							blockable = false,
+							func = function()
+								G.jokers:remove_card(card)
+								card:remove()
+								card = nil
+								return true;
+							end
+						}))
+						return true
+					end
+				}))
+                return { message = "$" .. amount }
+            end
         end
     end
 }
@@ -235,89 +351,26 @@ SMODS.Joker {
 }
 
 -- Happy Pou joker
-SMODS.Atlas {
-    key = 'HappyPou',
-    path = 'happyPou.png',
-    px = 71,
-    py = 95,
-}
-
-SMODS.Joker {
-    key = 'HappyPou',
-    loc_txt = {
-        name = 'Happy Pou',
-        text = { 'awww :)',
-                "{X:mult,C:white}x#2#{} Mult",
-                "if played hand",
-                "contains a {C:attention}Flush{}",
-                'Currently {X:mult,C:white}X#1#{} Mult' }
-    },
-    atlas = 'HappyPou',
-    rarity = 1,
-    cost = 5,
-    pools = {["FinnmodAddition"] = true},
-
-    unlocked = true,
-    discovered = false,
-    blueprint_compact = true,
-    eternal_compact = false,
-    preishable_compact = false,
-
-    pos = {x = 0, y = 0},
-    config = { extra = { Xmult = 1, gain = 2 }},
-
-    loc_vars = function(self, info_queue, center)
-        return {vars = {center.ability.extra.Xmult, center.ability.extra.gain}}
-    end,
-
-    check_for_unlock = function(self, args)
-        if args.type == 'test' then --not a real type, just a joke
-            unlock_card(self)
-        end
-        unlock_card(self) --unlocks the card if it isnt unlocked
-    end,
-
-    calculate = function(self, card, context)
-        if context.joker_main then
-            return {
-                Xmult_mod = card.ability.extra.Xmult,
-                message = 'X' .. card.ability.extra.Xmult,
-                colour = G.C.MULT
-            }
-        end
-
-        if context.before and next(context.poker_hands['Flush']) and not context.blueprint then
-            card.ability.extra.Xmult = card.ability.extra.Xmult * card.ability.extra.gain
-            return {
-                message = 'Upgraded!',
-                colour = G.C.MULT,
-                card = card
-            }
-        end
-    end,
-}
-
--- -- Sad Pou jocker
 -- SMODS.Atlas {
---     key = 'sadPou',
---     path = 'sadPou.png',
+--     key = 'HappyPou',
+--     path = 'happyPou.png',
 --     px = 71,
 --     py = 95,
 -- }
 
 -- SMODS.Joker {
---     key = 'sadPou',
+--     key = 'HappyPou',
 --     loc_txt = {
---         name = 'Sad Pou',
---         text = { 'awww :(',
+--         name = 'Happy Pou',
+--         text = { 'awww :)',
 --                 "{X:mult,C:white}x#2#{} Mult",
 --                 "if played hand",
 --                 "contains a {C:attention}Flush{}",
 --                 'Currently {X:mult,C:white}X#1#{} Mult' }
 --     },
---     atlas = 'sadPou',
+--     atlas = 'HappyPou',
 --     rarity = 1,
---     cost = 4,
+--     cost = 5,
 --     pools = {["FinnmodAddition"] = true},
 
 --     unlocked = true,
@@ -359,6 +412,8 @@ SMODS.Joker {
 --         end
 --     end,
 -- }
+
+
 
 -- -- Dog bones
 -- SMODS.Atlas {
