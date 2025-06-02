@@ -10,8 +10,12 @@ SMODS.Back({
     loc_txt = {
         name = "Dog",
         text={
-        "Start with 5",
+        "Start with {C:attention}5{}",
         "dog jokers"
+        },
+        locked = {
+        "Unlock by exploding the",
+        "{C:attention}Dog{} Joker."
         },
     },
 	
@@ -19,7 +23,8 @@ SMODS.Back({
 	pos = { x = 0, y = 0 },
 	order = 1,
 	atlas = "dogdeck",
-    unlocked = true,
+    discovered = false,
+    unlocked = false,
 
 	apply = function(self)
         G.E_MANAGER:add_event(Event({
@@ -38,10 +43,8 @@ SMODS.Back({
 	end,
 
 	check_for_unlock = function(self, args)
-		if args.type == "win_deck" then
+        if G.GAME.pool_flags and G.GAME.pool_flags.dog_exploded then
             unlock_card(self)
-        else
-			unlock_card(self)
-		end
-	end,
+        end
+    end,
 })

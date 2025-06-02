@@ -313,6 +313,7 @@ SMODS.Joker {
 		if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
 			-- Another pseudorandom thing, randomly generates a decimal between 0 and 1, so effectively a random percentage.
 			if pseudorandom('dog') < G.GAME.probabilities.normal / card.ability.extra.odds then
+                G.GAME.pool_flags.dog_exploded = true
 				-- This part plays the animation.
 				G.E_MANAGER:add_event(Event({
 					func = function()
@@ -350,68 +351,96 @@ SMODS.Joker {
 	end,
 }
 
--- Happy Pou joker
--- SMODS.Atlas {
---     key = 'HappyPou',
---     path = 'happyPou.png',
---     px = 71,
---     py = 95,
--- }
+-- Pou joker
+SMODS.Atlas {
+    key = 'Pou',
+    path = 'pou.png',
+    px = 71,
+    py = 95,
+}
 
--- SMODS.Joker {
---     key = 'HappyPou',
---     loc_txt = {
---         name = 'Happy Pou',
---         text = { 'awww :)',
---                 "{X:mult,C:white}x#2#{} Mult",
---                 "if played hand",
---                 "contains a {C:attention}Flush{}",
---                 'Currently {X:mult,C:white}X#1#{} Mult' }
---     },
---     atlas = 'HappyPou',
---     rarity = 1,
---     cost = 5,
---     pools = {["FinnmodAddition"] = true},
+SMODS.Joker {
+    key = 'Pou',
+    loc_txt = {
+        name = 'Pou',
+        text = {
+                "{X:chips,C:white}X#1#{} Chips",
+                "need to {C:attention}sell{} stuff to feed it",
+                "else it will {C:attention}die{} of hunger",
+                "{C:inactive}(Currently {}{C:attention}#2#{}{C:inactive} of #3#){}" }
+    },
+    atlas = 'Pou',
+    rarity = 1,
+    cost = 5,
+    pools = {["FinnmodAddition"] = true},
 
---     unlocked = true,
---     discovered = false,
---     blueprint_compact = true,
---     eternal_compact = false,
---     preishable_compact = false,
+    unlocked = true,
+    discovered = false,
+    blueprint_compact = true,
+    eternal_compact = false,
+    preishable_compact = false,
 
---     pos = {x = 0, y = 0},
---     config = { extra = { Xmult = 1, gain = 2 }},
+    pos = {x = 0, y = 0},
+    config = { extra = { Xchips = 3, hunger = 2, maxHunger = 4}},
 
---     loc_vars = function(self, info_queue, center)
---         return {vars = {center.ability.extra.Xmult, center.ability.extra.gain}}
---     end,
+    loc_vars = function(self, info_queue, card)
+        return {vars = { card.ability.extra.Xchips, card.ability.extra.hunger, card.ability.extra.maxHunger}}
+    end,
 
---     check_for_unlock = function(self, args)
---         if args.type == 'test' then --not a real type, just a joke
---             unlock_card(self)
---         end
---         unlock_card(self) --unlocks the card if it isnt unlocked
---     end,
+    check_for_unlock = function(self, args)
+        if args.type == 'test' then --not a real type, just a joke
+            unlock_card(self)
+        end
+        unlock_card(self) --unlocks the card if it isnt unlocked
+    end,
 
---     calculate = function(self, card, context)
---         if context.joker_main then
---             return {
---                 Xmult_mod = card.ability.extra.Xmult,
---                 message = 'X' .. card.ability.extra.Xmult,
---                 colour = G.C.MULT
---             }
---         end
+    calculate = function(self, card, context)
+        if context.joker_main then
+            return {
+                x_chips = card.ability.extra.Xchips
+            }
+        end
 
---         if context.before and next(context.poker_hands['Flush']) and not context.blueprint then
---             card.ability.extra.Xmult = card.ability.extra.Xmult * card.ability.extra.gain
---             return {
---                 message = 'Upgraded!',
---                 colour = G.C.MULT,
---                 card = card
---             }
---         end
---     end,
--- }
+        if context.selling_card then
+            if card.ability.extra.hunger < card.ability.extra.maxHunger then
+                card.ability.extra.hunger = card.ability.extra.hunger + 1
+                return {
+                    message = '+1'
+                }
+            end
+        end
+
+        if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
+            card.ability.extra.hunger = card.ability.extra.hunger - 1
+
+            if card.ability.extra.hunger == 0 then
+                G.E_MANAGER:add_event(Event({
+					func = function()
+						play_sound('tarot1')
+						card.T.r = -0.2
+						card:juice_up(0.3, 0.4)
+						card.states.drag.is = true
+						card.children.center.pinch.x = true
+						-- This part destroys the card.
+						G.E_MANAGER:add_event(Event({
+							trigger = 'after',
+							delay = 0.3,
+							blockable = false,
+							func = function()
+								G.jokers:remove_card(card)
+								card:remove()
+								card = nil
+								return true;
+							end
+						}))
+						return true
+					end
+				}))
+            end
+            return { message = '-1' }
+        end
+    end,
+}
 
 
 
