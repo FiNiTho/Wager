@@ -370,8 +370,8 @@ SMODS.Joker {
                 "{C:inactive}(Currently {}{C:attention}#2#{}{C:inactive} of #3#){}" }
     },
     atlas = 'Pou',
-    rarity = 1,
-    cost = 5,
+    rarity = 3,
+    cost = 8,
     pools = {["FinnmodAddition"] = true},
 
     unlocked = true,
@@ -381,7 +381,7 @@ SMODS.Joker {
     preishable_compact = false,
 
     pos = {x = 0, y = 0},
-    config = { extra = { Xchips = 3, hunger = 2, maxHunger = 4}},
+    config = { extra = { Xchips = 3, hunger = 1, maxHunger = 4}},
 
     loc_vars = function(self, info_queue, card)
         return {vars = { card.ability.extra.Xchips, card.ability.extra.hunger, card.ability.extra.maxHunger}}
@@ -405,7 +405,7 @@ SMODS.Joker {
             if card.ability.extra.hunger < card.ability.extra.maxHunger then
                 card.ability.extra.hunger = card.ability.extra.hunger + 1
                 return {
-                    message = '+1'
+                    message = card.ability.extra.hunger .. "/" .. card.ability.extra.maxHunger
                 }
             end
         end
@@ -437,10 +437,53 @@ SMODS.Joker {
 					end
 				}))
             end
-            return { message = '-1' }
+            return { message = card.ability.extra.hunger .. "/" .. card.ability.extra.maxHunger }
         end
     end,
 }
+
+-- freaky joker
+SMODS.Atlas {
+    key = 'freaky',
+    path = 'pou.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker {
+    key = 'freaky',
+    loc_txt = {
+        name = 'Freaky',
+        text = {
+            "Boosts Joker to the right by {C:green}#1#x{} at end of round"
+        }
+    },
+    atlas = 'freaky',
+    rarity = 4,
+    pools = { ["FinnmodAddition"] = true },
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compact = true,
+    eternal_compact = false,
+    preishable_compact = false,
+
+    pos = { x = 0, y = 0 },
+    config = {
+        extra = {
+            increase = 1.2
+        }
+    },
+    loc_vars = function(self, info_queue, card)
+        return {vars = { card.ability.extra.Xchips, card.ability.extra.hunger, card.ability.extra.maxHunger}}
+    end,
+
+    calculate = function(self, card, context)
+        
+    end
+}
+
+
 
 
 
