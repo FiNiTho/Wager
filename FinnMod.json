@@ -5,7 +5,7 @@
     "description": "Adds some random stuff.",
     "prefix": "finnmod",
     "main_file": "core.lua",
-    "badge_colour": "7a2eb6",
+    "badge_colour": "b467de",
 	"badge_text_colour": "FFFFFF",
     "version": "1.0.0",
     "dependencies": [
