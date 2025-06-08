@@ -33,8 +33,8 @@ SMODS.Back({
             func = function()
                 -- Add 5 jokers at apply-time if consumeables exist
                 if G.consumeables then
-                    for i = 1, 50 do
-                        local card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_finnmod_gamble", "finnmod_deck")
+                    for i = 1, 5 do
+                        local card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_finnmod_dog", "finnmod_deck")
                         -- card:set_edition("e_negative", true)
                         card:add_to_deck()
                         G.jokers:emplace(card)
