@@ -20,7 +20,7 @@ SMODS.ConsumableType {
 	default = "c_finnmod_wager",
 }
 
--- money gamble consumable
+-- money gamble card
 SMODS.Consumable {
     key = 'wager',
     loc_txt = {
@@ -158,7 +158,7 @@ SMODS.Consumable {
     end
 }
 
--- joker gamble consumable
+-- joker gamble card
 if (SMODS.Mods["Cryptid"] or {}).can_load then -- cryptid version
     SMODS.Consumable {
         key = 'gamble',
@@ -216,7 +216,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then -- cryptid version
             if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
                 card.ability.extra.roundCount = card.ability.extra.roundCount + 1
 
-                if card.ability.extra.roundCount >= 2 then
+                if card.ability.extra.roundCount >= card.ability.extra.maxroundCount then
                     local number = math.random(card.ability.extra.odds)
                     if number <= card.ability.extra.exoticOdds then
                         G.E_MANAGER:add_event(Event({
@@ -407,7 +407,7 @@ else -- normal version
             if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
                 card.ability.extra.roundCount = card.ability.extra.roundCount + 1
 
-                if card.ability.extra.roundCount >= 2 then
+                if card.ability.extra.roundCount >= card.ability.extra.maxroundCount then
                     local number = math.random(card.ability.extra.odds)
                     if number <= card.ability.extra.legendaryOdds then
                         G.E_MANAGER:add_event(Event({
@@ -520,7 +520,7 @@ else -- normal version
     }
 end
 
--- consumable gamble consumable
+-- consumable gamble card
 SMODS.Consumable {
         key = 'consumable',
         loc_txt = {
@@ -542,7 +542,7 @@ SMODS.Consumable {
         config = {
             extra = {
                 roundCount = 0,
-                maxroundCount = 2,
+                maxroundCount = 1,
                 odds = 100,
                 spectralOdds = 25,
                 tarotOdds = 35,
@@ -571,7 +571,7 @@ SMODS.Consumable {
             if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
                 card.ability.extra.roundCount = card.ability.extra.roundCount + 1
 
-                if card.ability.extra.roundCount >= 2 then
+                if card.ability.extra.roundCount >= card.ability.extra.maxroundCount then
                     local number = math.random(card.ability.extra.odds)
                     if number <= card.ability.extra.spectralOdds then
                         G.E_MANAGER:add_event(Event({

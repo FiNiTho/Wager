@@ -10,7 +10,7 @@ SMODS.Booster {
     key = "gambleSmall",
     cost = 4,
     atlas = "boosters",
-    weight = 10,
+    weight = 1,
     pos = { x = 0, y = 0 },
     draw_hand = false,
     kind = "Gamble",
@@ -35,16 +35,16 @@ SMODS.Booster {
 
     ease_background_colour = function(self)
         ease_colour(G.C.DYN_UI.MAIN, G.C.SET.gamble)
-        ease_background_colour({ new_colour = G.C.SET.Gamble, special_colour = G.C.SET.gamble2, contrast = 3 })
+        ease_background_colour({ new_colour = G.C.SET.gamble, special_colour = G.C.SET.gamble2, contrast = 3 })
     end
 }
 
 -- big gamble pack
 SMODS.Booster {
     key = "gambleBig",
-    cost = 4,
+    cost = 6,
     atlas = "boosters",
-    weight = 100,
+    weight = 0.8,
     pos = { x = 1, y = 0 },
     draw_hand = false,
     kind = "Gamble",
