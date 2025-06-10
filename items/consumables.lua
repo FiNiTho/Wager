@@ -177,7 +177,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then -- cryptid version
         atlas = 'consumables',
         set = 'Gamble',
         cost = 4,
-        pools = { ["FinnmodAddition"] = true },
+        pools = { },
 
         pos = { x = 0, y = 0 },
         config = {
@@ -372,7 +372,7 @@ else -- normal version
         atlas = 'consumables',
         set = 'Gamble',
         cost = 4,
-        pools = { ["FinnmodAddition"] = true },
+        pools = { },
 
         pos = { x = 0, y = 0 },
         config = {
@@ -536,7 +536,7 @@ SMODS.Consumable {
         atlas = 'consumables',
         set = 'Gamble',
         cost = 4,
-        pools = { ["FinnmodAddition"] = true },
+        pools = { },
 
         pos = { x = 2, y = 0 },
         config = {
@@ -576,7 +576,6 @@ SMODS.Consumable {
                     if number <= card.ability.extra.spectralOdds then
                         G.E_MANAGER:add_event(Event({
                             trigger = 'after',
-                            delay = 0.1,
                             blockable = false,
                             func = function()
                                 
@@ -590,7 +589,6 @@ SMODS.Consumable {
                     elseif number <= card.ability.extra.spectralOdds + card.ability.extra.tarotOdds then
                         G.E_MANAGER:add_event(Event({
                             trigger = 'after',
-                            delay = 0.1,
                             blockable = false,
                             func = function()
                                 -- Create and add the Joker card
@@ -602,7 +600,6 @@ SMODS.Consumable {
                     else
                         G.E_MANAGER:add_event(Event({
                             trigger = 'after',
-                            delay = 0.1, 
                             blockable = false,
                             func = function()
                                 local new_card = create_card("Planet", G.consumeables, nil, nil, true, true, nil)

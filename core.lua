@@ -38,12 +38,21 @@ SMODS.current_mod.optional_features = {
 
 -- Finnmod joker pool
 SMODS.ObjectType({
-	key = "FinnmodAddition",
-	default = "j_reserved_parking",
+	key = "finnmodJokers",
+	default = "j_finnmod_dog",
 	cards = {},
 	inject = function(self)
 		SMODS.ObjectType.inject(self)
-		-- insert base game food jokers
+	end,
+})
+
+-- gamble joker pool
+SMODS.ObjectType({
+	key = "gambleJoker",
+	default = "j_finnmod_gamble",
+	cards = {},
+	inject = function(self)
+		SMODS.ObjectType.inject(self)
 	end,
 })
 

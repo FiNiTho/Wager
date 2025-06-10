@@ -23,7 +23,7 @@ SMODS.Voucher {
     atlas = 'vouchers', 
     pos = { x = 0, y = 0 },
 
-    pools = {["FinnmodAddition"] = true},
+    pools = { },
 
     config = {
         extra = { }
@@ -58,7 +58,7 @@ SMODS.Voucher {
     atlas = 'vouchers', 
     pos = { x = 1, y = 0 },
 
-    pools = { ["FinnmodAddition"] = true },
+    pools = { },
 
     config = {
         extra = { }
@@ -92,7 +92,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
     atlas = 'vouchers', 
     pos = { x = 2, y = 0 },
 
-    pools = { ["FinnmodAddition"] = true },
+    pools = { },
 
     config = {
         extra = { }

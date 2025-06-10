@@ -23,7 +23,7 @@ SMODS.Joker {
     atlas = 'dog',
     rarity = 2,
     cost = 5,
-    pools = {["FinnmodAddition"] = true},
+    pools = {["finnmodJokers"] = true},
 
     unlocked = true,
     discovered = false,
@@ -118,7 +118,7 @@ SMODS.Joker {
     atlas = 'Pou',
     rarity = 3,
     cost = 8,
-    pools = {["FinnmodAddition"] = true},
+    pools = {["finnmodJokers"] = true},
 
     unlocked = true,
     discovered = false,
@@ -186,4 +186,81 @@ SMODS.Joker {
             return { message = card.ability.extra.hunger .. "/" .. card.ability.extra.maxHunger }
         end
     end,
+}
+
+-- gamble joker
+SMODS.Atlas {
+    key = 'gamble',
+    path = 'pou.png',
+    px = 71,
+    py = 95,
+}
+
+SMODS.Joker {
+    key = 'gamble',
+    loc_txt = {
+        name = 'Gamble',
+        text = {
+                "If {C:attention}first hand{} of round countains",
+                "{C:attention}three 7's{} create a {C:gamble}Gamble{} card",
+                "{C:inactive}(Must have room){}"}
+    },
+    atlas = 'gamble',
+    rarity = 1,
+    cost = 4,
+    pools = {["finnmodJokers"] = true, ["gambleJoker"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compact = true,
+    eternal_compact = false,
+    preishable_compact = false,
+
+    pos = {x = 0, y = 0},
+    config = { extra = { }},
+
+    loc_vars = function(self, info_queue, card)
+        return {vars = { }}
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+    calculate = function(self, card, context)
+        if context.after then
+            local count7 = 0
+            for i = 1, #context.full_hand do
+                local this_card = context.full_hand[i]
+                if this_card:get_id() == 7 then
+                    count7 = count7 + 1
+                end
+            end
+
+            if count7 >= 3 then
+                if #G.consumeables.cards >= G.consumeables.config.card_limit then
+                else
+                    card_eval_status_text(
+                        card,
+                        "extra",
+                        nil,
+                        nil,
+                        nil,
+                        { message = "Jackpot!", colour = G.C.SET.gamble }
+                    )
+
+                    G.E_MANAGER:add_event(Event({
+                        trigger = "after",
+                        delay = 0.2,
+                        func = function()
+                            local new_card = create_card("Gamble", G.consumeables, nil, nil, true, true, nil)
+                            G.consumeables:emplace(new_card)
+                            return true
+                        end
+                    }))
+                end
+            end
+        end
+    end
+
+
 }
