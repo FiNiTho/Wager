@@ -6,6 +6,7 @@ if CardSleeves then
         py = 95,
     }
 
+    -- dog sleeve
     local dogsleeve = CardSleeves.Sleeve({
 		key = "dog_deck_sleeve",
 		name = "Dog Sleeve",
@@ -28,8 +29,8 @@ if CardSleeves then
                 func = function()
                     -- Add 5 jokers at apply-time if consumeables exist
                     if G.consumeables then
-                        for i = 1, 50 do
-                            local card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_finnmod_gamble", "finnmod_deck")
+                        for i = 1, 5 do
+                            local card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_finnmod_dog", "finnmod_deck")
                             -- card:set_edition("e_negative", true)
                             card:add_to_deck()
                             G.jokers:emplace(card)
@@ -59,6 +60,47 @@ if CardSleeves then
                     end
                 }))
             end
+        end,
+	})
+
+    -- gamble sleeve
+    local gamblesleeve = CardSleeves.Sleeve({
+		key = "gamble_deck_sleeve",
+		name = "Gamble Sleeve",
+		atlas = "dogdeckSleeve",
+        loc_txt = {
+            name = "Gamble",
+            text={
+            "Start run with",
+            "one of the {C:gamble}Gamble{} jokers",
+            "and a random {C:gamble}Gamble{} card"
+            },
+        },
+		config = { },
+        pos = { x = 0, y = 0 },
+		discovered = true,
+        unlocked = true,
+		apply = function(self)
+            G.E_MANAGER:add_event(Event({
+                func = function()
+                    if G.consumeables then
+                        local card = create_card("gambleJoker", G.jokers, nil, nil, nil, nil)
+                        card:add_to_deck()
+                        G.jokers:emplace(card)
+                    end
+                    return true
+                end
+            }))
+            G.E_MANAGER:add_event(Event({
+                func = function()
+                    if G.consumeables then
+                        local card = create_card("Gamble", G.consumeables, nil, nil, nil, nil)
+                        card:add_to_deck()
+                        G.consumeables:emplace(card)
+                    end
+                    return true
+                end
+            }))
         end,
 	})
 end
