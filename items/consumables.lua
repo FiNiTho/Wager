@@ -5,6 +5,7 @@ SMODS.Atlas {
     py = 95
 }
 
+-- {gamble cards}
 -- gamble type
 SMODS.ConsumableType {
 	object_type = "ConsumableType",
@@ -20,7 +21,7 @@ SMODS.ConsumableType {
 	default = "c_finnmod_wager",
 }
 
--- money gamble card
+-- Wager gamble card
 SMODS.Consumable {
     key = 'wager',
     loc_txt = {
@@ -38,7 +39,7 @@ SMODS.Consumable {
     set = 'Gamble',
     cost = 4,
 
-    pos = { x = 1, y = 0 },
+    pos = { x = 0, y = 0 },
     config = {
         extra = {
             roundCount = 1, 
@@ -158,12 +159,12 @@ SMODS.Consumable {
     end
 }
 
--- joker gamble card
+-- Roulette gamble card
 if (SMODS.Mods["Cryptid"] or {}).can_load then -- cryptid version
     SMODS.Consumable {
-        key = 'gamble',
+        key = 'roulette',
         loc_txt = {
-            name = 'Gamble',
+            name = 'Roulette',
             text = {
                 "After {C:attention}#2# rounds{} it has a",
                 "{C:green}#4#%{} chance to get {C:cry_exotic,E:1}exotic{}",
@@ -179,7 +180,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then -- cryptid version
         cost = 4,
         pools = { },
 
-        pos = { x = 0, y = 0 },
+        pos = { x = 1, y = 0 },
         config = {
             extra = {
                 roundCount = 0,
@@ -340,7 +341,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then -- cryptid version
 
         use = function(self, card, area, copier)
             -- Create the new consumable card
-            local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_finnmod_gamble")
+            local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_finnmod_roulette")
             new_card:start_materialize()
 
             new_card:add_to_deck()
@@ -358,9 +359,9 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then -- cryptid version
     }
 else -- normal version
     SMODS.Consumable {
-        key = 'gamble',
+        key = 'roulette',
         loc_txt = {
-            name = 'Gamble',
+            name = 'Roulette',
             text = {
                 "After {C:attention}#2# rounds{} it has a",
                 "{C:green}#4#%{} chance to get {C:legendary,E:1}legendary{}",
@@ -374,7 +375,7 @@ else -- normal version
         cost = 4,
         pools = { },
 
-        pos = { x = 0, y = 0 },
+        pos = { x = 1, y = 0 },
         config = {
             extra = {
                 roundCount = 0, 
@@ -502,7 +503,7 @@ else -- normal version
 
         use = function(self, card, area, copier)
             -- Create the new consumable card
-            local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_finnmod_gamble")
+            local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_finnmod_roulette")
             new_card:start_materialize()
 
             new_card:add_to_deck()
@@ -522,158 +523,223 @@ end
 
 -- consumable gamble card
 SMODS.Consumable {
-        key = 'consumable',
-        loc_txt = {
-            name = 'Consumable',
-            text = {
-                "After {C:attention}#2# rounds{} it has a",
-                "{C:green}#4#%{} chance to get {C:spectral,E:1}spectral card{}",
-                "{C:green}#5#%{} chance to get {C:tarot}tarot card{}",
-                "{C:green}#6#%{} chance to get {C:planet}planet card{}",
-                "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
+    key = 'consumable',
+    loc_txt = {
+        name = 'Consumable',
+        text = {
+            "After {C:attention}#2# rounds{} it has a",
+            "{C:green}#4#%{} chance to get {C:spectral,E:1}spectral card{}",
+            "{C:green}#5#%{} chance to get {C:tarot}tarot card{}",
+            "{C:green}#6#%{} chance to get {C:planet}planet card{}",
+            "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
+        }
+    },
+    atlas = 'consumables',
+    set = 'Gamble',
+    cost = 4,
+    pools = { },
+
+    pos = { x = 2, y = 0 },
+    config = {
+        extra = {
+            roundCount = 0,
+            maxroundCount = 1,
+            odds = 100,
+            spectralOdds = 25,
+            tarotOdds = 35,
+            planetOdds = 40
+        }
+    },
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+
+    loc_vars = function(self, info_queue, card)
+        return {
+            vars = {
+                card.ability.extra.roundCount,
+                card.ability.extra.maxroundCount, 
+                card.ability.extra.odds,
+                card.ability.extra.spectralOdds,
+                card.ability.extra.tarotOdds,
+                card.ability.extra.planetOdds
             }
-        },
-        atlas = 'consumables',
-        set = 'Gamble',
-        cost = 4,
-        pools = { },
+        }
+    end,
 
-        pos = { x = 2, y = 0 },
-        config = {
-            extra = {
-                roundCount = 0,
-                maxroundCount = 1,
-                odds = 100,
-                spectralOdds = 25,
-                tarotOdds = 35,
-                planetOdds = 40
-            }
-        },
+    calculate = function(self, card, context)
+        if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
+            card.ability.extra.roundCount = card.ability.extra.roundCount + 1
 
-        check_for_unlock = function(self, args)
-            unlock_card(self)
-        end,
-
-        loc_vars = function(self, info_queue, card)
-            return {
-                vars = {
-                    card.ability.extra.roundCount,
-                    card.ability.extra.maxroundCount, 
-                    card.ability.extra.odds,
-                    card.ability.extra.spectralOdds,
-                    card.ability.extra.tarotOdds,
-                    card.ability.extra.planetOdds
-                }
-            }
-        end,
-
-        calculate = function(self, card, context)
-            if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
-                card.ability.extra.roundCount = card.ability.extra.roundCount + 1
-
-                if card.ability.extra.roundCount >= card.ability.extra.maxroundCount then
-                    local number = math.random(card.ability.extra.odds)
-                    if number <= card.ability.extra.spectralOdds then
-                        G.E_MANAGER:add_event(Event({
-                            trigger = 'after',
-                            blockable = false,
-                            func = function()
-                                
-                                -- Create and add the Joker card
-                                local new_card = create_card("Spectral", G.consumeables, nil, nil, true, true, nil)
-                                new_card:add_to_deck()
-                                G.consumeables:emplace(new_card)
-                            return true
-                            end,
-                        }))
-                    elseif number <= card.ability.extra.spectralOdds + card.ability.extra.tarotOdds then
-                        G.E_MANAGER:add_event(Event({
-                            trigger = 'after',
-                            blockable = false,
-                            func = function()
-                                -- Create and add the Joker card
-                                local new_card = create_card("Tarot", G.consumeables, nil, nil, true, true, nil)
-                                G.consumeables:emplace(new_card)
-                            return true
-                            end,
-                        }))
-                    else
-                        G.E_MANAGER:add_event(Event({
-                            trigger = 'after',
-                            blockable = false,
-                            func = function()
-                                local new_card = create_card("Planet", G.consumeables, nil, nil, true, true, nil)
-                                G.consumeables:emplace(new_card)
-                            return true
-                            end,
-                        }))
-                    end
+            if card.ability.extra.roundCount >= card.ability.extra.maxroundCount then
+                local number = math.random(card.ability.extra.odds)
+                if number <= card.ability.extra.spectralOdds then
                     G.E_MANAGER:add_event(Event({
-                        ease_dollars(amount)
-                    }))
-                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.6,
+                        blockable = false,
                         func = function()
-                            play_sound('tarot1')
-                            card.T.r = -0.2
-                            card:juice_up(0.3, 0.4)
-                            card.states.drag.is = true
-                            card.children.center.pinch.x = true
-                            -- This part destroys the card.
-                            G.E_MANAGER:add_event(Event({
-                                trigger = 'after',
-                                delay = 0.3,
-                                blockable = false,
-                                func = function()
-                                    G.jokers:remove_card(card)
-                                    card:remove()
-                                    card = nil
-                                    return true;
-                                end
-                            }))
-                            return true
-                        end
+                            
+                            -- Create and add the Joker card
+                            local new_card = create_card("Spectral", G.consumeables, nil, nil, true, true, nil)
+                            new_card:add_to_deck()
+                            G.consumeables:emplace(new_card)
+                        return true
+                        end,
                     }))
-                    return {  }
-                end
-                if card.ability.extra.roundCount < 2 then
-                    return { message = card.ability.extra.roundCount .. "/" .. card.ability.extra.maxroundCount}
+                elseif number <= card.ability.extra.spectralOdds + card.ability.extra.tarotOdds then
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.6,
+                        blockable = false,
+                        func = function()
+                            -- Create and add the Joker card
+                            local new_card = create_card("Tarot", G.consumeables, nil, nil, true, true, nil)
+                            G.consumeables:emplace(new_card)
+                        return true
+                        end,
+                    }))
                 else
-                    return {  }
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.6,
+                        blockable = false,
+                        func = function()
+                            local new_card = create_card("Planet", G.consumeables, nil, nil, true, true, nil)
+                            G.consumeables:emplace(new_card)
+                        return true
+                        end,
+                    }))
                 end
-            end
-        end,
-
-        can_use = function(self, card)
-            if G.consumeables and G.consumeables.cards then
-                -- Check if card is already in consumables
-                for _, c in ipairs(G.consumeables.cards) do
-                    if c == card then
-                        return false
+                G.E_MANAGER:add_event(Event({
+                    ease_dollars(amount)
+                }))
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        play_sound('tarot1')
+                        card.T.r = -0.2
+                        card:juice_up(0.3, 0.4)
+                        card.states.drag.is = true
+                        card.children.center.pinch.x = true
+                        -- This part destroys the card.
+                        G.E_MANAGER:add_event(Event({
+                            blockable = false,
+                            func = function()
+                                G.jokers:remove_card(card)
+                                card:remove()
+                                card = nil
+                                return true;
+                            end
+                        }))
+                        return true
                     end
-                end
-                -- Check if there is room in consumables deck
-                if #G.consumeables.cards >= G.consumeables.config.card_limit then
+                }))
+                return {  }
+            end
+            if card.ability.extra.roundCount < 2 then
+                return { message = card.ability.extra.roundCount .. "/" .. card.ability.extra.maxroundCount}
+            else
+                return {  }
+            end
+        end
+    end,
+
+    can_use = function(self, card)
+        if G.consumeables and G.consumeables.cards then
+            -- Check if card is already in consumables
+            for _, c in ipairs(G.consumeables.cards) do
+                if c == card then
                     return false
                 end
             end
-            return true
-        end,
-
-        use = function(self, card, area, copier)
-            -- Create the new consumable card
-            local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_finnmod_consumable")
-            new_card:start_materialize()
-
-            new_card:add_to_deck()
-            G.consumeables:emplace(new_card)
-
-            -- Remove the original consumable that was used
-            G.E_MANAGER:add_event(Event({
-                func = function()
-                    G.consumeables:remove_card(card)
-                    card:remove()
-                    return true
-                end
-            }))
+            -- Check if there is room in consumables deck
+            if #G.consumeables.cards >= G.consumeables.config.card_limit then
+                return false
+            end
         end
-    }
+        return true
+    end,
+
+    use = function(self, card, area, copier)
+        -- Create the new consumable card
+        local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_finnmod_consumable")
+        new_card:start_materialize()
+
+        new_card:add_to_deck()
+        G.consumeables:emplace(new_card)
+
+        -- Remove the original consumable that was used
+        G.E_MANAGER:add_event(Event({
+            func = function()
+                G.consumeables:remove_card(card)
+                card:remove()
+                return true
+            end
+        }))
+    end
+}
+
+-- {spectral cards}
+-- gamble seal
+SMODS.Consumable {
+    key = 'martingale',
+    loc_txt = {
+        name = 'Martingale',
+        text = {
+            "Add a {C:gamble}Auburn Seal{}",
+            "to {C:attention}1{} selected",
+            "card in your hand"
+        }
+    },
+    atlas = 'consumables',
+    set = 'Spectral',
+    cost = 4,
+    pools = {},
+
+    pos = { x = 0, y = 1 },
+    config = { 
+            max_highlighted = 1,
+            extra = 'finnmod_auburnSeal', },
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = G.P_SEALS[(card.ability or self.config).extra]
+        return { vars = { card.ability.max_highlighted } }
+    end,
+
+    use = function(self, card, area)
+		for i = 1, #G.hand.highlighted do
+			local highlighted = G.hand.highlighted[i]
+			G.E_MANAGER:add_event(Event({
+				func = function()
+					play_sound("tarot1")
+					highlighted:juice_up(0.3, 0.5)
+					return true
+				end,
+			}))
+			G.E_MANAGER:add_event(Event({
+				trigger = "after",
+				delay = 0.1,
+				func = function()
+					if highlighted then
+						highlighted:set_seal("finnmod_auburnSeal")
+					end
+					return true
+				end,
+			}))
+			delay(0.5)
+			G.E_MANAGER:add_event(Event({
+				trigger = "after",
+				delay = 0.2,
+				func = function()
+					G.hand:unhighlight_all()
+					return true
+				end,
+			}))
+		end
+    end
+}
