@@ -1,14 +1,17 @@
--- Dog
+
+-- joker atlas
 SMODS.Atlas {
-    key = 'dog',
-    path = 'dog.png',
+    key = 'jokers',
+    path = 'jokers.png',
     px = 71,
     py = 95,
 }
 
+-- sounds
 SMODS.Sound({key = "arf", path = "arf.ogg",})
 SMODS.Sound({key = "arfBoom", path = "arfBoom.ogg",})
 
+-- Dog
 SMODS.Joker {
     key = 'dog',
     loc_txt = {
@@ -20,7 +23,7 @@ SMODS.Joker {
             "at end of the round"
         }
     },
-    atlas = 'dog',
+    atlas = 'jokers',
     rarity = 2,
     cost = 5,
     pools = {["finnmodJokers"] = true},
@@ -98,13 +101,6 @@ SMODS.Joker {
 }
 
 -- Pou joker/tomagachi joker
-SMODS.Atlas {
-    key = 'Pou',
-    path = 'pou.png',
-    px = 71,
-    py = 95,
-}
-
 SMODS.Joker {
     key = 'Pou',
     loc_txt = {
@@ -115,7 +111,7 @@ SMODS.Joker {
                 "else it will {C:attention}die{} of hunger",
                 "{C:inactive}(Currently {}{C:attention}#2#{}{C:inactive} of #3#){}" }
     },
-    atlas = 'Pou',
+    atlas = 'jokers',
     rarity = 3,
     cost = 8,
     pools = {["finnmodJokers"] = true},
@@ -126,7 +122,7 @@ SMODS.Joker {
     eternal_compact = false,
     preishable_compact = false,
 
-    pos = {x = 0, y = 0},
+    pos = {x = 1, y = 0},
     config = { extra = { Xchips =2, hunger = 1, maxHunger = 4}},
 
     loc_vars = function(self, info_queue, card)
@@ -141,12 +137,12 @@ SMODS.Joker {
     end,
 
     calculate = function(self, card, context)
-        if context.joker_main then
+         if context.joker_main then
             return {
                 x_chips = card.ability.extra.Xchips
             }
         end
-
+        
         if context.selling_card then
             if card.ability.extra.hunger < card.ability.extra.maxHunger then
                 card.ability.extra.hunger = card.ability.extra.hunger + 1
@@ -188,25 +184,18 @@ SMODS.Joker {
     end,
 }
 
--- gamble joker
-SMODS.Atlas {
-    key = 'gamble',
-    path = 'pou.png',
-    px = 71,
-    py = 95,
-}
-
+-- jackpot joker
 SMODS.Joker {
-    key = 'gamble',
+    key = 'jackpot',
     loc_txt = {
-        name = 'Gamble',
+        name = 'Jackpot',
         text = {
                 "If {C:attention}first hand{} of round countains",
                 "{C:attention}three 7's{} create a {C:gamble}Gamble{} card",
                 "{C:inactive}(Must have room){}"}
     },
-    atlas = 'gamble',
-    rarity = 1,
+    atlas = 'jokers',
+    rarity = 2,
     cost = 4,
     pools = {["finnmodJokers"] = true, ["gambleJoker"] = true},
 
@@ -216,7 +205,7 @@ SMODS.Joker {
     eternal_compact = false,
     preishable_compact = false,
 
-    pos = {x = 0, y = 0},
+    pos = {x = 2, y = 0},
     config = { extra = { }},
 
     loc_vars = function(self, info_queue, card)
@@ -237,8 +226,7 @@ SMODS.Joker {
             end
 
             if count7 >= 3 then
-                if #G.consumeables.cards >= G.consumeables.config.card_limit then
-                else
+                if #G.consumeables.cards <= G.consumeables.config.card_limit then
                     card_eval_status_text(
                         card,
                         "extra",
@@ -253,11 +241,71 @@ SMODS.Joker {
                         delay = 0.2,
                         func = function()
                             local new_card = create_card("Gamble", G.consumeables, nil, nil, true, true, nil)
+                            new_card.ability.extra.created_by_jackpot = true
                             G.consumeables:emplace(new_card)
                             return true
                         end
                     }))
                 end
+            end
+        end
+    end
+
+
+}
+
+-- gambler joker
+SMODS.Joker {
+    key = 'gambler',
+    loc_txt = {
+        name = 'Gambler joker',
+        text = {
+                "Create a {C:gamble}Gamble{} card",
+                "at the end of a {C:attention}Shop{}",
+                "{C:inactive}(Must have room){}"}
+    },
+    atlas = 'jokers',
+    rarity = 1,
+    cost = 4,
+    pools = {["finnmodJokers"] = true, ["gambleJoker"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compact = true,
+    eternal_compact = false,
+    preishable_compact = false,
+
+    pos = {x = 3, y = 0},
+    config = { extra = { }},
+
+    loc_vars = function(self, info_queue, card)
+        return {vars = { }}
+    end,
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+    calculate = function(self, card, context)
+        if #G.consumeables.cards <= G.consumeables.config.card_limit then
+            if context.ending_shop then
+                card_eval_status_text(
+                    card,
+                    "extra",
+                    nil,
+                    nil,
+                    nil,
+                    { message = "Jackpot!", colour = G.C.SET.gamble }
+                )
+
+                G.E_MANAGER:add_event(Event({
+                    trigger = "after",
+                    delay = 0.2,
+                    func = function()
+                        local new_card = create_card("Gamble", G.consumeables, nil, nil, true, true, nil)
+                        G.consumeables:emplace(new_card)
+                        return true
+                    end
+                }))
             end
         end
     end

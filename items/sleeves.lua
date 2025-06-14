@@ -93,11 +93,9 @@ if CardSleeves then
             }))
             G.E_MANAGER:add_event(Event({
                 func = function()
-                    if G.consumeables then
-                        local card = create_card("Gamble", G.consumeables, nil, nil, nil, nil)
-                        card:add_to_deck()
-                        G.consumeables:emplace(card)
-                    end
+                    local new_card = create_card("Gamble", G.consumeables, nil, nil, true, true, nil)
+                    new_card.ability.extra.created_by_jackpot = true
+                    G.consumeables:emplace(new_card)
                     return true
                 end
             }))
