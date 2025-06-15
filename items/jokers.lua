@@ -226,7 +226,8 @@ SMODS.Joker {
             end
 
             if count7 >= 3 then
-                if #G.consumeables.cards <= G.consumeables.config.card_limit then
+                if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                    G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
                     card_eval_status_text(
                         card,
                         "extra",
@@ -286,8 +287,11 @@ SMODS.Joker {
         unlock_card(self)
     end,
     calculate = function(self, card, context)
-        if #G.consumeables.cards <= G.consumeables.config.card_limit then
-            if context.ending_shop then
+        if context.ending_shop and not context.individual
+        and not context.repetition
+        and not context.blueprint_card then
+            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
                 card_eval_status_text(
                     card,
                     "extra",
