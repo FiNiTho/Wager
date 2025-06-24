@@ -33,8 +33,14 @@ local function create_gamble_card(params)
         cost = params.cost or 4,
         pos = params.pos,
         config = {
-            extra = params.config
+            extra = (function()
+                local config = params.config or {}
+                config.active = config.active or false
+                config.hasDone = config.hasDone or false
+                return config
+            end)()
         },
+
 
         check_for_unlock = function(self, args)
             unlock_card(self)
@@ -61,38 +67,17 @@ local function create_gamble_card(params)
                 card.ability.extra.roundCount = card.ability.extra.roundCount + 1
 
                 if card.ability.extra.roundCount >= card.ability.extra.maxroundCount then
-                    -- Execute the card's effect and capture the return value
-                    local result = params.effect and params.effect(card) or nil
-                    
-                    -- Destroy the card
-                    G.E_MANAGER:add_event(Event({
-                        func = function()
-                            play_sound('tarot1')
-                            card.T.r = -0.2
-                            card:juice_up(0.3, 0.4)
-                            card.states.drag.is = true
-                            card.children.center.pinch.x = true
-                            G.E_MANAGER:add_event(Event({
-                                trigger = 'after',
-                                delay = 0.3,
-                                blockable = false,
-                                func = function()
-                                    G.jokers:remove_card(card)
-                                    card:remove()
-                                    card = nil
-                                    return true
-                                end
-                            }))
-                            return true
-                        end
-                    }))
-                    
-                    -- Return the result if it exists
-                    if result and result.message then
-                        return { message = result.message }
+                    juice_card_until(card, function(c)
+                        return c.ability.extra.roundCount >= c.ability.extra.maxroundCount
+                    end, true)
+
+                    card.ability.extra.active = true
+
+                    if card.ability.extra.active == false then
+                        return {
+                            message = "Active",
+                        }
                     end
-                    
-                    return {}
                 end
                 
                 if card.ability.extra.roundCount < 2 then
@@ -104,6 +89,10 @@ local function create_gamble_card(params)
         end,
 
         can_use = function(self, card)
+            if card.ability.extra.active then
+                return true
+            end
+
             if G.consumeables and G.consumeables.cards then
                 for _, c in ipairs(G.consumeables.cards) do
                     if c == card then return false end
@@ -116,18 +105,39 @@ local function create_gamble_card(params)
         end,
 
         use = function(self, card, area, copier)
-            local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_finnmod_"..params.key)
-            new_card:start_materialize()
-            new_card:add_to_deck()
-            G.consumeables:emplace(new_card)
-            
-            G.E_MANAGER:add_event(Event({
-                func = function()
-                    G.consumeables:remove_card(card)
-                    card:remove()
-                    return true
+            if card.ability.extra.active == true then
+                -- Execute the card's effect and capture the return value
+                local result = params.effect and params.effect(card) or nil
+
+                -- removes the card
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        G.consumeables:remove_card(card)
+                        card:remove()
+                        return true
+                    end
+                }))
+                
+                -- Return the result if it exists
+                if result and result.message then
+                    return { message = result.message }
                 end
-            }))
+
+                return {}
+            else
+                local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_finnmod_"..params.key)
+                new_card:start_materialize()
+                new_card:add_to_deck()
+                G.consumeables:emplace(new_card)
+                
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        G.consumeables:remove_card(card)
+                        card:remove()
+                        return true
+                    end
+                }))
+            end
         end
     }
 end
@@ -139,9 +149,9 @@ create_gamble_card({
     text = {
         "After {C:attention}#2# round{} it has a",
         "{C:green}#9#%{} chance to get {C:money,E:1}$#4#{}",
-        "{C:green}#11#%{} chance to get {C:money}$#8#{}",
+        "{C:green}#11#%{} chance to get {C:money}$#6#{}",
         "{C:green}#12#%{} chance to get {C:money}$#7#{}",
-        "{C:green}#13#%{} chance to get {C:money}$#6#{}",
+        "{C:green}#13#%{} chance to get {C:money}$#8#{}",
         "{C:green}#10#%{} chance to get {C:red}$#5#{}",
         "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
     },
@@ -157,7 +167,6 @@ create_gamble_card({
         hugeWin = 15, 
         bigWin = 30,
         smallWin = 40,
-        hasDone = false,
     },
     loc_vars = {'odds', 'jackpotMoney', 'lossMoney', 'hugeWinMoney', 'bigWinMoney', 'smallWinMoney', 
                 'jackpot', 'loss', 'hugeWin', 'bigWin', 'smallWin'},
@@ -209,7 +218,6 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
             epicOdds = 20,
             rareOdds = 35,
             uncommenOdds = 40,
-            hasDone = false
         },
         loc_vars = {'odds', 'exoticOdds', 'legendaryOdds', 'epicOdds', 'rareOdds', 'uncommenOdds'},
         effect = function(card)
@@ -260,7 +268,6 @@ else
             legendaryOdds = 2,
             rareOdds = 35,
             uncommenOdds = 65,
-            hasDone = false
         },
         loc_vars = {'odds', 'legendaryOdds', 'rareOdds', 'uncommenOdds'},
         effect = function(card)
@@ -303,7 +310,6 @@ create_gamble_card({
         spectralOdds = 25,
         tarotOdds = 35,
         planetOdds = 40,
-        hasDone = false
     },
     loc_vars = {'odds', 'spectralOdds', 'tarotOdds', 'planetOdds'},
     effect = function(card)
@@ -343,7 +349,6 @@ create_gamble_card({
         polychromeOdds = 10,
         holographicOdds = 35,
         foilOdds = 40,
-        hasDone = false
     },
     loc_vars = {'odds', 'negetiveOdds', 'polychromeOdds', 'holographicOdds', 'foilOdds'},
     effect = function(card)
@@ -396,7 +401,6 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
             memedOdds = 15,
             candyOdds = 35,
             mOdds = 40,
-            hasDone = false
         },
         loc_vars = {'odds', 'cursedOdds', 'memedOdds', 'candyOdds', 'mOdds'},
         effect = function(card)
