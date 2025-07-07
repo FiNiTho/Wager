@@ -47,7 +47,10 @@ local function create_gamble_card(params)
         end,
 
         loc_vars = function(self, info_queue, card)
-            local vars = {card.ability.extra.roundCount, card.ability.extra.maxroundCount}
+            G.GAME.gamble_shared = G.GAME.gamble_shared or {
+                currentAmount = card.ability.extra.currentAmount or 2
+            }
+            local vars = {card.ability.extra.roundCount, card.ability.extra.maxroundCount, (G.GAME.probabilities.normal or 1), G.GAME.gamble_shared.currentAmount}
             for _, v in ipairs(params.loc_vars or {}) do
                 table.insert(vars, card.ability.extra[v])
             end
@@ -109,90 +112,111 @@ local function create_gamble_card(params)
                 -- Execute the card's effect and capture the return value
                 local result = params.effect and params.effect(card) or nil
 
-                -- removes the card
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        G.consumeables:remove_card(card)
-                        card:remove()
-                        return true
-                    end
-                }))
-                
-                -- Return the result if it exists
-                if result and result.message then
-                    return { message = result.message }
-                end
-
                 return {}
             else
                 local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_finnmod_"..params.key)
                 new_card:start_materialize()
                 new_card:add_to_deck()
                 G.consumeables:emplace(new_card)
-                
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        G.consumeables:remove_card(card)
-                        card:remove()
-                        return true
-                    end
-                }))
             end
         end
     }
 end
 
--- Wager gamble card
-create_gamble_card({
-    key = 'wager',
-    name = 'Wager',
-    text = {
-        "After {C:attention}#2# round{} it has a",
-        "{C:green}#9#%{} chance to get {C:money,E:1}$#4#{}",
-        "{C:green}#11#%{} chance to get {C:money}$#6#{}",
-        "{C:green}#12#%{} chance to get {C:money}$#7#{}",
-        "{C:green}#13#%{} chance to get {C:money}$#8#{}",
-        "{C:green}#10#%{} chance to get {C:red}$#5#{}",
-        "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
-    },
-    pos = { x = 0, y = 0 },
-    config = {
-        roundCount = 0, 
-        maxroundCount = 1,
-        odds = 100,
-        jackpotMoney = 100, lossMoney = -10, hugeWinMoney = 25, 
-        bigWinMoney = 15, smallWinMoney = 8,
-        jackpot = 2,
-        loss = 10,
-        hugeWin = 15, 
-        bigWin = 30,
-        smallWin = 40,
-    },
-    loc_vars = {'odds', 'jackpotMoney', 'lossMoney', 'hugeWinMoney', 'bigWinMoney', 'smallWinMoney', 
-                'jackpot', 'loss', 'hugeWin', 'bigWin', 'smallWin'},
-    effect = function(card)
-        local number = math.random(1, card.ability.extra.odds)
-        local amount = 0
+-- -- old Wager gamble card
+-- create_gamble_card({
+--     key = 'wager',
+--     name = 'Wager',
+--     text = {
+--         "{C:green}#3# in #4#{} to gain {C:money}+$#6#{}",
+--         "every time this card is used",
+--         "currently {C:money}$#4#{}",
+--         "{C:inactive}(Maxes out at {}{C:attention}#7#{}{C:inactive}){}"
+--     },
+--     pos = { x = 0, y = 0 },
+--     config = {
+--         roundCount = 1, 
+--         maxroundCount = 1,
+--         odds = 2,
+--         gainAmount = 2,
+--     },
+--     loc_vars = {'odds', 'gainAmount'},
+--     effect = function(card)
+--         G.E_MANAGER:add_event(Event({
+--             ease_dollars(G.GAME.gamble_shared.currentAmount)
+--         }))
+--         if pseudorandom('dog') < G.GAME.probabilities.normal / card.ability.extra.odds then
+--             G.GAME.gamble_shared.currentAmount = G.GAME.gamble_shared.currentAmount + card.ability.extra.gainAmount
+--         end
+        
+--         return {}
+--     end
+-- })
 
-        if number <= card.ability.extra.jackpot then
-            amount = card.ability.extra.jackpotMoney
-        elseif number <= card.ability.extra.jackpot + card.ability.extra.loss then
-            amount = card.ability.extra.lossMoney
-        elseif number <= card.ability.extra.jackpot + card.ability.extra.loss + card.ability.extra.hugeWin then
-            amount = card.ability.extra.hugeWinMoney
-        elseif number <= card.ability.extra.jackpot + card.ability.extra.loss + card.ability.extra.hugeWin + card.ability.extra.bigWin then
-            amount = card.ability.extra.bigWinMoney
+-- Wager gamble card
+SMODS.Consumable {
+    key = 'wager',
+    loc_txt = {
+        name = 'Wager',
+        text = {
+            "{C:green}#1# in #3#{} to gain {C:money}+$#4#{}",
+            "every time this card is",
+            "used {C:inactive}(Max of {}{C:money}$#5#{}{C:inactive}){}",
+            "{C:inactive}(Currently {}{C:money}$#2#{}{C:inactive}){}",
+        }
+    },
+    atlas = 'consumables',
+    set = 'Gamble',
+    cost = 4,
+    pools = {},
+
+    pos = { x = 0, y = 0 },
+    config = { extra = {
+            odds = 2,
+            currentAmount = 5,
+            gainAmount = 5,
+            maxAmount = 30,
+        },     
+    },
+
+    check_for_unlock = function(self, args)
+        unlock_card(self)
+    end,
+
+    loc_vars = function(self, info_queue, card)
+        G.GAME.gamble_shared = G.GAME.gamble_shared or {
+            currentAmount = card.ability.extra.currentAmount
+        }
+        return { vars = {  
+                (G.GAME.probabilities.normal or 1),
+                G.GAME.gamble_shared.currentAmount,
+                card.ability.extra.odds,
+                card.ability.extra.gainAmount,
+                card.ability.extra.maxAmount,
+                } }
+    end,
+
+    can_use = function(self, card)
+        return true
+    end,
+
+    use = function(self, card, area)
+        if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.odds then
+            card_eval_status_text(card, "extra", nil, nil, nil, {
+                message = "Upgraded",
+                colour = G.C.SET.gamble
+            })
+            G.E_MANAGER:add_event(Event({
+                ease_dollars(G.GAME.gamble_shared.currentAmount)
+            }))
+            G.GAME.gamble_shared.currentAmount = G.GAME.gamble_shared.currentAmount + card.ability.extra.gainAmount
         else
-            amount = card.ability.extra.smallWinMoney
+            G.E_MANAGER:add_event(Event({
+                ease_dollars(G.GAME.gamble_shared.currentAmount)
+            }))
         end
-        
-        G.E_MANAGER:add_event(Event({
-            ease_dollars(amount)
-        }))
-        
-        return {message = "$" .. amount}
     end
-})
+}
 
 -- Roulette gamble card (Cryptid version)
 if (SMODS.Mods["Cryptid"] or {}).can_load then

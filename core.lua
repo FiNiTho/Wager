@@ -19,16 +19,8 @@ Finnmod_config = SMODS.current_mod.config
 
 
 -- COLOURS
-G.C = G.C or {}
-G.C.SET = G.C.SET or {}
-G.ARGS = G.ARGS or {}
-G.ARGS.LOC_COLOURS = G.ARGS.LOC_COLOURS or {}
-
 G.C.SET.gamble = G.C.SET.gamble or HEX("ca6972")
 G.C.SET.gamble2 = G.C.SET.gamble2 or HEX("56a786")
-
-G.ARGS.LOC_COLOURS["gamble"] = G.C.SET.gamble
-G.ARGS.LOC_COLOURS["gamble2"] = G.C.SET.gamble2
 
 
 SMODS.current_mod.optional_features = {
