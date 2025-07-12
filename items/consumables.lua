@@ -15,7 +15,7 @@ SMODS.ConsumableType {
     },
     primary_colour = G.C.SET.gamble2,
     secondary_colour = G.C.SET.gamble,
-    collection_rows = { 3, 3 },
+    collection_rows = { 3, 4 },
     shop_rate = 0.0,
     default = "c_finnmod_wager",
 }
@@ -41,16 +41,15 @@ local function create_gamble_card(params)
             end)()
         },
 
-
         check_for_unlock = function(self, args)
             unlock_card(self)
         end,
 
         loc_vars = function(self, info_queue, card)
-            G.GAME.gamble_shared = G.GAME.gamble_shared or {
-                currentAmount = card.ability.extra.currentAmount or 2
-            }
-            local vars = {card.ability.extra.roundCount, card.ability.extra.maxroundCount, (G.GAME.probabilities.normal or 1), G.GAME.gamble_shared.currentAmount}
+            info_queue[#info_queue+1] = G.P_CENTERS[params.info1]
+            info_queue[#info_queue+1] = G.P_CENTERS[params.info2]
+            info_queue[#info_queue+1] = G.P_CENTERS[params.info3]
+            local vars = {card.ability.extra.roundCount, card.ability.extra.maxroundCount, (G.GAME.probabilities.normal or 1)}
             for _, v in ipairs(params.loc_vars or {}) do
                 table.insert(vars, card.ability.extra[v])
             end
@@ -93,6 +92,9 @@ local function create_gamble_card(params)
 
         can_use = function(self, card)
             if card.ability.extra.active then
+                if params.can_use_addons and not params.can_use_addons(card) then
+                    return false
+                end
                 return true
             end
 
@@ -123,43 +125,13 @@ local function create_gamble_card(params)
     }
 end
 
--- -- old Wager gamble card
--- create_gamble_card({
---     key = 'wager',
---     name = 'Wager',
---     text = {
---         "{C:green}#3# in #4#{} to gain {C:money}+$#6#{}",
---         "every time this card is used",
---         "currently {C:money}$#4#{}",
---         "{C:inactive}(Maxes out at {}{C:attention}#7#{}{C:inactive}){}"
---     },
---     pos = { x = 0, y = 0 },
---     config = {
---         roundCount = 1, 
---         maxroundCount = 1,
---         odds = 2,
---         gainAmount = 2,
---     },
---     loc_vars = {'odds', 'gainAmount'},
---     effect = function(card)
---         G.E_MANAGER:add_event(Event({
---             ease_dollars(G.GAME.gamble_shared.currentAmount)
---         }))
---         if pseudorandom('dog') < G.GAME.probabilities.normal / card.ability.extra.odds then
---             G.GAME.gamble_shared.currentAmount = G.GAME.gamble_shared.currentAmount + card.ability.extra.gainAmount
---         end
-        
---         return {}
---     end
--- })
-
 -- Wager gamble card
 SMODS.Consumable {
     key = 'wager',
     loc_txt = {
         name = 'Wager',
         text = {
-            "{C:green}#1# in #3#{} to gain {C:money}+$#4#{}",
+            "{C:green}#1# in #3#{} chance to gain {C:money}$#4#{}",
             "every time this card is",
             "used {C:inactive}(Max of {}{C:money}$#5#{}{C:inactive}){}",
             "{C:inactive}(Currently {}{C:money}$#2#{}{C:inactive}){}",
@@ -201,7 +173,7 @@ SMODS.Consumable {
     end,
 
     use = function(self, card, area)
-        if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.odds then
+        if G.GAME.gamble_shared.currentAmount < card.ability.extra.maxAmount and pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.odds then
             card_eval_status_text(card, "extra", nil, nil, nil, {
                 message = "Upgraded",
                 colour = G.C.SET.gamble
@@ -224,93 +196,94 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
         key = 'roulette',
         name = 'Roulette',
         text = {
-            "After {C:attention}#2# rounds{} it has a",
-            "{C:green}#4#%{} chance to get {C:cry_exotic,E:1}exotic{}",
-            "{C:green}#5#%{} chance to get {C:legendary,E:1}legendary{}",
-            "{C:green}#6#%{} chance to get {C:cry_epic}epic{}",
-            "{C:green}#7#%{} chance to get {C:rare}rare{}",
-            "{C:green}#8#%{} chance to get {C:uncommon}uncommon{}",
-            "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
-        },
-        pos = { x = 1, y = 0 },
-        config = {
-            roundCount = 0,
-            maxroundCount = 2, 
-            odds = 100,
-            exoticOdds = 2,
-            legendaryOdds = 5,
-            epicOdds = 20,
-            rareOdds = 35,
-            uncommenOdds = 40,
-        },
-        loc_vars = {'odds', 'exoticOdds', 'legendaryOdds', 'epicOdds', 'rareOdds', 'uncommenOdds'},
-        effect = function(card)
-            if #G.jokers.cards < G.jokers.config.card_limit then
-                local number = math.random(card.ability.extra.odds)
-                if number <= card.ability.extra.exoticOdds then
-                    local card = create_card("Joker", G.jokers, nil, "cry_exotic", nil, nil, nil)
-                    card:add_to_deck()
-                    card:start_materialize()
-                    G.jokers:emplace(card)
-                elseif number <= card.ability.extra.exoticOdds + card.ability.extra.legendaryOdds then
-                    local new_card = create_card("Joker", G.jokers, true, nil, nil, nil)
-                    new_card:add_to_deck()
-                    G.jokers:emplace(new_card)
-                elseif number <= card.ability.extra.exoticOdds + card.ability.extra.legendaryOdds + card.ability.extra.epicOdds then
-                    local new_card = create_card("Joker", G.jokers, nil, "cry_epic", nil, nil)
-                    new_card:add_to_deck()
-                    G.jokers:emplace(new_card)
-                elseif number <= card.ability.extra.exoticOdds + card.ability.extra.legendaryOdds + card.ability.extra.epicOdds + card.ability.extra.rareOdds then
-                    local new_card = create_card("Joker", G.jokers, nil, 1, nil, nil)
-                    new_card:add_to_deck()
-                    G.jokers:emplace(new_card)
-                else
-                    local new_card = create_card("Joker", G.jokers, nil, 0.8, nil, nil)
-                    new_card:add_to_deck()
-                    G.jokers:emplace(new_card)
-                end
-            end
-        end
-    })
-else
-    -- Normal roulette version
-    create_gamble_card({
-        key = 'roulette',
-        name = 'Roulette',
-        text = {
-            "After {C:attention}#2# rounds{} it has a",
-            "{C:green}#4#%{} chance to get {C:legendary,E:1}legendary{}",
-            "{C:green}#5#%{} chance to get {C:rare}rare{}",
-            "{C:green}#6#%{} chance to get {C:uncommon}uncommon{}",
-            "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
+            "After {C:attention}#2#{} round create a random Joker",
+            "{C:green}#3# in #5#{} chance to get {C:cry_epic}epic{}",
+            "{C:green}#3# in #4#{} chance to get {C:legendary,E:1}legendary{}",
+            "{C:green}#3# in #6#{} chance to get {C:cry_exotic,E:1}exotic{}",
+            "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
         },
         pos = { x = 1, y = 0 },
         config = {
             roundCount = 0, 
-            maxroundCount = 2,
-            odds = 100,
-            legendaryOdds = 2,
-            rareOdds = 35,
-            uncommenOdds = 65,
+            maxroundCount = 1,
+            legendaryOdds = 30,
+            epicOdds = 10,
+            exoticOdds = 50,
         },
-        loc_vars = {'odds', 'legendaryOdds', 'rareOdds', 'uncommenOdds'},
+        loc_vars = {'legendaryOdds', 'epicOdds', 'exoticOdds'},
         effect = function(card)
             if #G.jokers.cards < G.jokers.config.card_limit then
-                local number = math.random(card.ability.extra.odds)
-                if number <= card.ability.extra.legendaryOdds then
-                    local new_card = create_card("Joker", G.jokers, true, nil, nil, nil)
-                    new_card:add_to_deck()
-                    G.jokers:emplace(new_card)
-                elseif number <= card.ability.extra.legendaryOdds + card.ability.extra.rareOdds then
-                    local new_card = create_card("Joker", G.jokers, nil, 1, nil, nil)
-                    new_card:add_to_deck()
-                    G.jokers:emplace(new_card)
-                else
-                    local new_card = create_card("Joker", G.jokers, nil, 0.8, nil, nil)
-                    new_card:add_to_deck()
-                    G.jokers:emplace(new_card)
-                end
+                G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
+                    play_sound("tarot1")
+                    if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.exoticOdds then
+                        local new_card = create_card("Joker", G.jokers, nil, "cry_exotic", nil, nil)
+                        new_card:add_to_deck()
+                        G.jokers:emplace(new_card)
+                    elseif pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.legendaryOdds then
+                        local new_card = create_card("Joker", G.jokers, true, nil, nil, nil)
+                        new_card:add_to_deck()
+                        G.jokers:emplace(new_card)
+                    elseif pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.epicOdds then
+                        local new_card = create_card("Joker", G.jokers, nil, "cry_epic", nil, nil)
+                        new_card:add_to_deck()
+                        G.jokers:emplace(new_card)
+                    else
+                        local new_card = create_card("Joker", G.jokers, nil, nil, nil, nil)
+                        new_card:add_to_deck()
+                        G.jokers:emplace(new_card)
+                    end
+                return true
+                end }))
+                delay(0.6)
             end
+        end,
+        can_use_addons = function(card)
+            return #G.jokers.cards < G.jokers.config.card_limit
+        end
+    })
+else-- Normal roulette version
+    create_gamble_card({
+        key = 'roulette',
+        name = 'Roulette',
+        text = {
+            "After {C:attention}#2#{} round create a random Joker",
+            "{C:green}#3# in #5#{} chance to get {C:rare}rare{}",
+            "{C:green}#3# in #4#{} chance to get {C:legendary,E:1}legendary{}",
+            "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
+        },
+        pos = { x = 1, y = 0 },
+        config = {
+            roundCount = 0, 
+            maxroundCount = 1,
+            legendaryOdds = 30,
+            rareOdds = 10,
+        },
+        loc_vars = {'legendaryOdds', 'rareOdds'},
+        effect = function(card)
+            if #G.jokers.cards < G.jokers.config.card_limit then
+                G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
+                    play_sound("tarot1")
+                    if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.legendaryOdds then
+                        local new_card = create_card("Joker", G.jokers, true, nil, nil, nil)
+                        new_card:add_to_deck()
+                        G.jokers:emplace(new_card)
+                    elseif pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.rareOdds then
+                        local new_card = create_card("Joker", G.jokers, nil, 1, nil, nil)
+                        new_card:add_to_deck()
+                        G.jokers:emplace(new_card)
+                    else
+                        local new_card = create_card("Joker", G.jokers, nil, nil, nil, nil)
+                        new_card:add_to_deck()
+                        G.jokers:emplace(new_card)
+                    end
+                return true
+                end }))
+                delay(0.6)
+            end
+        end,
+
+        can_use_addons = function(card)
+            return #G.jokers.cards < G.jokers.config.card_limit
         end
     })
 end
@@ -320,35 +293,67 @@ create_gamble_card({
     key = 'cocktail',
     name = 'Cocktail',
     text = {
-        "After {C:attention}#2# rounds{} it has a",
-        "{C:green}#4#%{} chance to get {C:spectral}spectral card{}",
-        "{C:green}#5#%{} chance to get {C:tarot}tarot card{}",
-        "{C:green}#6#%{} chance to get {C:planet}planet card{}",
-        "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
+        "After {C:attention}#2#{} round {C:green}1 to #4#{}",
+        "selected cards randomly",
+        "enhances to {C:attention}Stained{} cards",
+        "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
     },
     pos = { x = 2, y = 0 },
     config = {
         roundCount = 0,
         maxroundCount = 1,
-        odds = 100,
-        spectralOdds = 25,
-        tarotOdds = 35,
-        planetOdds = 40,
+        maxAmount = 3,
     },
-    loc_vars = {'odds', 'spectralOdds', 'tarotOdds', 'planetOdds'},
+    info1 = 'm_finnmod_stained',
+    loc_vars = { 'maxAmount' },
     effect = function(card)
-        local number = math.random(card.ability.extra.odds)
-        if number <= card.ability.extra.spectralOdds then
-            local new_card = create_card("Spectral", G.consumeables, nil, nil, true, true, nil)
-            new_card:add_to_deck()
-            G.consumeables:emplace(new_card)
-        elseif number <= card.ability.extra.spectralOdds + card.ability.extra.tarotOdds then
-            local new_card = create_card("Tarot", G.consumeables, nil, nil, true, true, nil)
-            G.consumeables:emplace(new_card)
-        else
-            local new_card = create_card("Planet", G.consumeables, nil, nil, true, true, nil)
-            G.consumeables:emplace(new_card)
+        local max_seals = card.ability.extra.maxAmount or 3
+        local highlighted = G.hand.highlighted
+        local seal_count = math.min(#highlighted, max_seals)
+        local amount_to_seal = math.random(1, seal_count)
+
+        -- Make a shallow copy and shuffle it
+        local shuffled = {}
+        for _, v in ipairs(highlighted) do table.insert(shuffled, v) end
+        for i = #shuffled, 2, -1 do
+            local j = math.random(i)
+            shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
         end
+
+        for i = 1, amount_to_seal do
+            local selected = shuffled[i]
+            G.E_MANAGER:add_event(Event({
+                func = function()
+                    play_sound("tarot1")
+                    selected:juice_up(0.3, 0.5)
+                    return true
+                end,
+            }))
+            G.E_MANAGER:add_event(Event({
+                trigger = "after",
+                delay = 0.1,
+                func = function()
+                    if selected then
+                        selected:set_ability("m_finnmod_stained")
+                    end
+                    return true
+                end,
+            }))
+        end
+
+        -- Unhighlight all afterwards
+        G.E_MANAGER:add_event(Event({
+            trigger = "after",
+            delay = 0.5,
+            func = function()
+                G.hand:unhighlight_all()
+                return true
+            end,
+        }))
+    end,
+
+    can_use_addons = function(card)
+        return #G.hand.highlighted <= card.ability.extra.maxAmount and #G.hand.highlighted >= 1
     end
 })
 
@@ -357,12 +362,11 @@ create_gamble_card({
     key = 'slots',
     name = 'Slots',
     text = {
-        "After {C:attention}#2# rounds{} it has a",
-        "{C:green}#4#%{} chance to give a joker {C:dark_edition,E:1}negetive{}",
-        "{C:green}#5#%{} chance to give a joker {C:enhanced}polychrome{}",
-        "{C:green}#6#%{} chance to give a joker {C:rare}holographic{}",
-        "{C:green}#7#%{} chance to give a joker {C:spectral}foil{}",
-        "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
+        "After {C:attention}#2#{} rounds",
+        "Add {C:dark_edition}foil{}, {C:dark_edition}holographic{},",
+        "or {C:dark_edition}polychrome{} effect to",
+        "{C:attention}1{} random joker",
+        "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
     },
     pos = { x = 3, y = 0 },
     config = {
@@ -374,6 +378,9 @@ create_gamble_card({
         holographicOdds = 35,
         foilOdds = 40,
     },
+    info1 = 'e_foil',
+    info2 = 'e_holo',
+    info3 = 'e_polychrome',
     loc_vars = {'odds', 'negetiveOdds', 'polychromeOdds', 'holographicOdds', 'foilOdds'},
     effect = function(card)
         local eligibleJokers = {}
@@ -386,75 +393,153 @@ create_gamble_card({
             end
         end
 
-        local number = math.random(card.ability.extra.odds)
         if #eligibleJokers > 0 then
-            local target = pseudorandom_element(eligibleJokers, pseudoseed("finnmod_edition"))
-            if number <= card.ability.extra.negetiveOdds then
-                target:set_edition({ negative = true }, true)
-            elseif number <= card.ability.extra.negetiveOdds + card.ability.extra.polychromeOdds then
-                target:set_edition({ polychrome = true }, true)
-            elseif number <= card.ability.extra.negetiveOdds + card.ability.extra.polychromeOdds + card.ability.extra.holographicOdds then
-                target:set_edition({ holo = true }, true)
-            else
-                target:set_edition({ foil = true }, true)
-            end
-            target:juice_up(0.4, 0.6)
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.4,
+                func = function()
+                    local edition = poll_edition('finnmod_slots', nil, true, true,
+                        { 'e_polychrome', 'e_holo', 'e_foil' })
+                    local selected_card = pseudorandom_element(eligibleJokers)
+                    selected_card:set_edition(edition, true)
+                    card:juice_up(0.3, 0.5)
+                    return true
+                end
+            }))
         end
+    end,
+    can_use_addons = function(card)
+        local count = 0
+        for i = 1, #G.jokers.cards do
+            local joker = G.jokers.cards[i]
+            if joker.ability.name ~= card.ability.name
+                and joker.ability.set == "Joker"
+                and not joker.edition then
+                count = count + 1
+            end
+        end
+        return count > 0
     end
 })
 
--- misc cryptid stuff gamble card
-if (SMODS.Mods["Cryptid"] or {}).can_load then
-    create_gamble_card({
-        key = 'cryptid',
-        name = 'Cryptid Shit',
-        text = {
-            "After {C:attention}#2# rounds{} it has a",
-            "{C:green}#4#%{} chance to get {C:cry_cursed}cursed{}",
-            "{C:green}#5#%{} chance to get {C:cry_meme}meme{}",
-            "{C:green}#6#%{} chance to get {C:cry_candy}candy{}",
-            "{C:green}#7#%{} chance to get {C:cry_m}m{}",
-            "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
-        },
-        pos = { x = 1, y = 0 },
-        config = {
-            roundCount = 0,
-            maxroundCount = 2, 
-            odds = 100,
-            cursedOdds = 10,
-            memedOdds = 15,
-            candyOdds = 35,
-            mOdds = 40,
-        },
-        loc_vars = {'odds', 'cursedOdds', 'memedOdds', 'candyOdds', 'mOdds'},
-        effect = function(card)
-            if #G.jokers.cards < G.jokers.config.card_limit then
-                local number = math.random(card.ability.extra.odds)
-                if number <= card.ability.extra.cursedOdds then
-                    local card = create_card("Joker", G.jokers, nil, "cry_cursed", nil, nil, nil)
-                    card:add_to_deck()
-                    card:start_materialize()
-                    G.jokers:emplace(card)
-                elseif number <= card.ability.extra.cursedOdds + card.ability.extra.memedOdds then
-                    local new_card = create_card("Meme", G.jokers, nil, nil, nil, nil)
-                    new_card:add_to_deck()
-                    card:start_materialize()
-                    G.jokers:emplace(new_card)
-                elseif number <= card.ability.extra.cursedOdds + card.ability.extra.memedOdds + card.ability.extra.candyOdds then
-                    local new_card = create_card("Joker", G.jokers, nil, "cry_candy", nil, nil)
-                    new_card:add_to_deck()
-                    card:start_materialize()
-                    G.jokers:emplace(new_card)
-                else
-                    local new_card = create_card("M", G.jokers, nil, nil, nil, nil)
-                    new_card:add_to_deck()
-                    card:start_materialize()
-                    G.jokers:emplace(new_card)
-                end
-            end
-        end
-    })
-end
+-- -- planet card upgrades
+-- create_gamble_card({
+--     key = 'planet',
+--     name = 'Planet',
+--     text = {
+--         "After {C:attention}#2#{} round {C:green}1 to #4#{}",
+--         "selected cards randomly",
+--         "enhances to {C:attention}Stained{} cards",
+--         "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
+--     },
+--     pos = { x = 4, y = 0 },
+--     config = {
+--         roundCount = 0,
+--         maxroundCount = 1,
+--         maxAmount = 3,
+--     },
+--     loc_vars = { 'maxAmount' },
+--     effect = function(card)
+        
+--     end
+-- })
+
+-- -- chips forever
+-- create_gamble_card({
+--     key = 'chipsForever',
+--     name = 'Chips Forever',
+--     text = {
+--         "After {C:attention}#2#{} round {C:green}1 to #4#{}",
+--         "selected cards randomly",
+--         "enhances to {C:attention}Stained{} cards",
+--         "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
+--     },
+--     pos = { x = 4, y = 0 },
+--     config = {
+--         roundCount = 0,
+--         maxroundCount = 1,
+--         maxAmount = 3,
+--     },
+--     loc_vars = { 'maxAmount' },
+--     effect = function(card)
+        
+--     end
+-- })
+
+-- -- mult forever
+-- create_gamble_card({
+--     key = 'multForever',
+--     name = 'Mult Forever',
+--     text = {
+--         "After {C:attention}#2#{} round {C:green}1 to #4#{}",
+--         "selected cards randomly",
+--         "enhances to {C:attention}Stained{} cards",
+--         "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
+--     },
+--     pos = { x = 4, y = 0 },
+--     config = {
+--         roundCount = 0,
+--         maxroundCount = 1,
+--         maxAmount = 3,
+--     },
+--     loc_vars = { 'maxAmount' },
+--     effect = function(card)
+        
+--     end
+-- })
+
+-- -- misc cryptid stuff gamble card
+-- if (SMODS.Mods["Cryptid"] or {}).can_load then
+--     create_gamble_card({
+--         key = 'cryptid',
+--         name = 'Cryptid Shit',
+--         text = {
+--             "After {C:attention}#2# rounds{} it has a",
+--             "{C:green}#4#%{} chance to get {C:cry_cursed}cursed{}",
+--             "{C:green}#5#%{} chance to get {C:cry_meme}meme{}",
+--             "{C:green}#6#%{} chance to get {C:cry_candy}candy{}",
+--             "{C:green}#7#%{} chance to get {C:cry_m}m{}",
+--             "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
+--         },
+--         pos = { x = 4, y = 0 },
+--         config = {
+--             roundCount = 0,
+--             maxroundCount = 2, 
+--             odds = 100,
+--             cursedOdds = 10,
+--             memedOdds = 15,
+--             candyOdds = 35,
+--             mOdds = 40,
+--         },
+--         loc_vars = {'odds', 'cursedOdds', 'memedOdds', 'candyOdds', 'mOdds'},
+--         effect = function(card)
+--             if #G.jokers.cards < G.jokers.config.card_limit then
+--                 local number = math.random(card.ability.extra.odds)
+--                 if number <= card.ability.extra.cursedOdds then
+--                     local card = create_card("Joker", G.jokers, nil, "cry_cursed", nil, nil, nil)
+--                     card:add_to_deck()
+--                     card:start_materialize()
+--                     G.jokers:emplace(card)
+--                 elseif number <= card.ability.extra.cursedOdds + card.ability.extra.memedOdds then
+--                     local new_card = create_card("Meme", G.jokers, nil, nil, nil, nil)
+--                     new_card:add_to_deck()
+--                     card:start_materialize()
+--                     G.jokers:emplace(new_card)
+--                 elseif number <= card.ability.extra.cursedOdds + card.ability.extra.memedOdds + card.ability.extra.candyOdds then
+--                     local new_card = create_card("Joker", G.jokers, nil, "cry_candy", nil, nil)
+--                     new_card:add_to_deck()
+--                     card:start_materialize()
+--                     G.jokers:emplace(new_card)
+--                 else
+--                     local new_card = create_card("M", G.jokers, nil, nil, nil, nil)
+--                     new_card:add_to_deck()
+--                     card:start_materialize()
+--                     G.jokers:emplace(new_card)
+--                 end
+--             end
+--         end
+--     })
+-- end
 
 -- {spectral cards}
 -- gamble seal

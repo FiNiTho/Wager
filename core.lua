@@ -7,7 +7,11 @@
 ----------------------------------------------------------
 ----------- MOD CODE -------------------------------------
 
--- shoutouts cryptid & mathisfun --
+-- shoutout to
+-- https://github.com/nh6574/VanillaRemade/blob/main/src/jokers.lua
+-- https://discord.com/channels/1116389027176787968/1224362333208444989
+-- cryptid
+-- for helping me understand how to do things with SMODS
 
 if not Finnmod then
 	Finnmod = {}

@@ -1,4 +1,3 @@
-
 -- joker atlas
 SMODS.Atlas {
     key = 'jokers',
@@ -25,24 +24,17 @@ SMODS.Joker {
     },
     atlas = 'jokers',
     rarity = 2,
-    cost = 5,
+    cost = 6,
     pools = {["finnmodJokers"] = true},
 
     unlocked = true,
     discovered = false,
-    blueprint_compact = true,
-    eternal_compact = false,
-    preishable_compact = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
 
     pos = {x = 0, y = 0},
     config = { extra = { mult = 2, odds = 5 } },
-
-    check_for_unlock = function(self, args)
-        if args.type == 'test' then
-            unlock_card(self)
-        end
-        unlock_card(self)
-    end,
 
     loc_vars = function(self, info_queue, card)
 		return { vars = { card.ability.extra.mult, (G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
@@ -100,13 +92,13 @@ SMODS.Joker {
 	end,
 }
 
--- Pou joker/tomagachi joker
+-- tomagachi joker
 SMODS.Joker {
-    key = 'Pou',
+    key = 'tomagotchi',
     loc_txt = {
-        name = 'Pou',
+        name = 'Tomagotchi',
         text = {
-                "{X:chips,C:white}X#1#{} Chips",
+                "{X:mult,C:white}X#1#{} Mult",
                 "need to {C:attention}sell{} stuff to feed it",
                 "else it will {C:attention}die{} of hunger",
                 "{C:inactive}(Currently {}{C:attention}#2#{}{C:inactive} of #3#){}" }
@@ -118,28 +110,22 @@ SMODS.Joker {
 
     unlocked = true,
     discovered = false,
-    blueprint_compact = true,
-    eternal_compact = false,
-    preishable_compact = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
 
     pos = {x = 1, y = 0},
-    config = { extra = { Xchips =2, hunger = 1, maxHunger = 4}},
+    pixel_size = { w = 54, h = 64 },
+    config = { extra = { Xmult = 3, hunger = 1, maxHunger = 4}},
 
     loc_vars = function(self, info_queue, card)
-        return {vars = { card.ability.extra.Xchips, card.ability.extra.hunger, card.ability.extra.maxHunger}}
-    end,
-
-    check_for_unlock = function(self, args)
-        if args.type == 'test' then --not a real type, just a joke
-            unlock_card(self)
-        end
-        unlock_card(self) --unlocks the card if it isnt unlocked
+        return {vars = { card.ability.extra.Xmult, card.ability.extra.hunger, card.ability.extra.maxHunger}}
     end,
 
     calculate = function(self, card, context)
-         if context.joker_main then
+        if context.joker_main then
             return {
-                x_chips = card.ability.extra.Xchips
+                x_mult = card.ability.extra.Xmult
             }
         end
         
@@ -201,9 +187,9 @@ SMODS.Joker {
 
     unlocked = true,
     discovered = false,
-    blueprint_compact = true,
-    eternal_compact = false,
-    preishable_compact = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
 
     pos = {x = 2, y = 0},
     config = { extra = { }},
@@ -212,9 +198,6 @@ SMODS.Joker {
         return {vars = { }}
     end,
 
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
     calculate = function(self, card, context)
         if context.after then
             local count7 = 0
@@ -261,9 +244,11 @@ SMODS.Joker {
     loc_txt = {
         name = 'Gambler joker',
         text = {
-                "Create a {C:gamble}Gamble{} card",
-                "at the end of a {C:attention}Shop{}",
-                "{C:inactive}(Must have room){}"}
+                "{C:green}#1# in #2#{} chance to create",
+                "a {C:gamble}Gamble{} card for each",
+                "rerole in the shop",
+                "{C:inactive}(Must have room){}",
+            }
     },
     atlas = 'jokers',
     rarity = 1,
@@ -272,47 +257,485 @@ SMODS.Joker {
 
     unlocked = true,
     discovered = false,
-    blueprint_compact = true,
-    eternal_compact = false,
-    preishable_compact = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
 
     pos = {x = 3, y = 0},
+    config = { extra = { odds = 3 }},
+
+    loc_vars = function(self, info_queue, card)
+        return {vars = { (G.GAME.probabilities.normal or 1), card.ability.extra.odds }}
+    end,
+
+    calculate = function(self, card, context)
+        if context.reroll_shop then
+            if pseudorandom('gambler') < G.GAME.probabilities.normal / card.ability.extra.odds then
+                if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                    G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                    card_eval_status_text(
+                        card,
+                        "extra",
+                        nil,
+                        nil,
+                        nil,
+                        { message = "Jackpot!", colour = G.C.SET.gamble }
+                    )
+
+                    G.E_MANAGER:add_event(Event({
+                        trigger = "after",
+                        delay = 0.2,
+                        func = function()
+                            local new_card = create_card("Gamble", G.consumeables, nil, nil, true, true, nil)
+                            G.consumeables:emplace(new_card)
+                            G.GAME.consumeable_buffer = G.GAME.consumeable_buffer - 1
+                            return true
+                        end
+                    }))
+                end
+            end
+        end
+    end
+}
+
+-- Gold joker
+if (SMODS.Mods["Cryptid"] or {}).can_load then -- Golden Tooth
+    SMODS.Joker {
+        key = 'goldenTooth',
+        loc_txt = {
+            name = 'Golden Tooth',
+            text = {
+                    "Gives {C:money}+#1#{}",
+                    "for each {C:attention}Gold Card{}",
+                    "in your {C:attention}full deck{}",
+                    "{C:inactive}(Currently{} {C:money}$#2#{}{C:inactive}){}"
+                }
+        },
+        atlas = 'jokers',
+        pos = {x = 0, y = 1},
+        rarity = 2,
+        cost = 6,
+        pools = {["finnmodJokers"] = true},
+
+        unlocked = true,
+        discovered = false,
+        blueprint_compat = false,
+        eternal_compat = true,
+        preishable_compat = true,
+
+        config = { extra = { money = 1 }},
+
+        loc_vars = function(self, info_queue, card)
+            info_queue[#info_queue + 1] = G.P_CENTERS.m_gold
+
+            local gold_tally = 0
+            if G.playing_cards then
+                for _, playing_card in ipairs(G.playing_cards) do
+                    if SMODS.has_enhancement(playing_card, 'm_gold') then gold_tally = gold_tally + 1 end
+                end
+            end
+            return { vars = { card.ability.extra.money, card.ability.extra.money * gold_tally } }
+        end,
+
+        calculate = function(self, card, context)
+            if context.joker_main then
+                local gold_tally = 0
+                for _, playing_card in ipairs(G.playing_cards) do
+                    if SMODS.has_enhancement(playing_card, 'm_gold') then gold_tally = gold_tally + 1 end
+                end
+            end
+        end,
+
+        calc_dollar_bonus = function(self, card)
+            local gold_tally = 0
+            for _, playing_card in ipairs(G.playing_cards) do
+                if SMODS.has_enhancement(playing_card, 'm_gold') then gold_tally = gold_tally + 1 end
+            end
+            return gold_tally > 0 and card.ability.extra.money * gold_tally or nil
+        end,
+
+        in_pool = function(self, args)
+            for _, playing_card in ipairs(G.playing_cards or {}) do
+                if SMODS.has_enhancement(playing_card, 'm_gold') then
+                    return true
+                end
+            end
+            return false
+        end
+    }
+else
+    SMODS.Joker {
+        key = 'goldJoker',
+        loc_txt = {
+            name = 'Gold Joker',
+            text = {
+                    "Gives {C:money}+#1#{}",
+                    "for each {C:attention}Gold Card{}",
+                    "in your {C:attention}full deck{}",
+                    "{C:inactive}(Currently{} {C:money}$#2#{}{C:inactive}){}"
+                }
+        },
+        atlas = 'jokers',
+        pos = {x = 4, y = 0},
+        rarity = 2,
+        cost = 6,
+        pools = {["finnmodJokers"] = true},
+
+        unlocked = true,
+        discovered = false,
+        blueprint_compat = false,
+        eternal_compat = true,
+        preishable_compat = true,
+
+        config = { extra = { money = 1 }},
+
+        loc_vars = function(self, info_queue, card)
+            info_queue[#info_queue + 1] = G.P_CENTERS.m_gold
+
+            local gold_tally = 0
+            if G.playing_cards then
+                for _, playing_card in ipairs(G.playing_cards) do
+                    if SMODS.has_enhancement(playing_card, 'm_gold') then gold_tally = gold_tally + 1 end
+                end
+            end
+            return { vars = { card.ability.extra.money, card.ability.extra.money * gold_tally } }
+        end,
+
+        calculate = function(self, card, context)
+            if context.joker_main then
+                local gold_tally = 0
+                for _, playing_card in ipairs(G.playing_cards) do
+                    if SMODS.has_enhancement(playing_card, 'm_gold') then gold_tally = gold_tally + 1 end
+                end
+            end
+        end,
+
+        calc_dollar_bonus = function(self, card)
+            local gold_tally = 0
+            for _, playing_card in ipairs(G.playing_cards) do
+                if SMODS.has_enhancement(playing_card, 'm_gold') then gold_tally = gold_tally + 1 end
+            end
+            return gold_tally > 0 and card.ability.extra.money * gold_tally or nil
+        end,
+
+        in_pool = function(self, args)
+            for _, playing_card in ipairs(G.playing_cards or {}) do
+                if SMODS.has_enhancement(playing_card, 'm_gold') then
+                    return true
+                end
+            end
+            return false
+        end
+    }
+end
+
+-- Lucky Gambler
+SMODS.Joker {
+    key = 'luckyGambler',
+    loc_txt = {
+        name = 'Lucky Gambler',
+        text = {
+                "test",
+            }
+    },
+    atlas = 'jokers',
+    pos = {x = 0, y = 1},
+    rarity = 3,
+    cost = 8,
+    pools = {["finnmodJokers"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
+
     config = { extra = { }},
 
     loc_vars = function(self, info_queue, card)
         return {vars = { }}
     end,
 
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
     calculate = function(self, card, context)
-        if context.ending_shop and not context.individual
-        and not context.repetition
-        and not context.blueprint_card then
-            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
-                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
-                card_eval_status_text(
-                    card,
-                    "extra",
-                    nil,
-                    nil,
-                    nil,
-                    { message = "Jackpot!", colour = G.C.SET.gamble }
-                )
+        
+    end,
+}
 
+-- Nectarine
+SMODS.Joker {
+    key = 'nectarine',
+    loc_txt = {
+        name = 'Nectarine',
+        text = {
+                "{C:red}+#1#{} Discards each round",
+                "reduces by",
+                "{C:red}#2#{} every round",
+            }
+    },
+    atlas = 'jokers',
+    pos = {x = 0, y = 1},
+    rarity = 2,
+    cost = 6,
+    pools = {["finnmodJokers"] = true, ["Food"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
+
+    config = { extra = { d_size = 3, d_loss = 1 }},
+
+    loc_vars = function(self, info_queue, card)
+        return { vars = { card.ability.extra.d_size, card.ability.extra.d_loss } }
+    end,
+
+    calculate = function(self, card, context)
+        if context.end_of_round and context.game_over == false and context.main_eval and not context.blueprint then
+            if card.ability.extra.d_size - card.ability.extra.d_loss <= 0 then
                 G.E_MANAGER:add_event(Event({
-                    trigger = "after",
-                    delay = 0.2,
                     func = function()
-                        local new_card = create_card("Gamble", G.consumeables, nil, nil, true, true, nil)
-                        G.consumeables:emplace(new_card)
+                        play_sound('tarot1')
+                        card.T.r = -0.2
+                        card:juice_up(0.3, 0.4)
+                        card.states.drag.is = true
+                        card.children.center.pinch.x = true
+                        G.E_MANAGER:add_event(Event({
+                            trigger = 'after',
+                            delay = 0.3,
+                            blockable = false,
+                            func = function()
+                                card:remove()
+                                return true
+                            end
+                        }))
                         return true
                     end
                 }))
+                return {
+                    message = "Eaten",
+                    colour = G.C.RED
+                }
+            else
+                card.ability.extra.d_size = card.ability.extra.d_size - card.ability.extra.d_loss
+                G.GAME.round_resets.discards = G.GAME.round_resets.discards - card.ability.extra.d_loss
+                ease_discard(-card.ability.extra.d_size)
+                return {
+                    message = "-" .. card.ability.extra.d_loss,
+                    colour = G.C.RED
+                }
             end
         end
-    end
+    end,
 
+    add_to_deck = function(self, card, from_debuff)
+        G.GAME.round_resets.discards = G.GAME.round_resets.discards + card.ability.extra.d_size
+        ease_discard(card.ability.extra.d_size)
+    end,
 
+    remove_from_deck = function(self, card, from_debuff)
+        G.GAME.round_resets.discards = G.GAME.round_resets.discards - card.ability.extra.d_size
+        ease_discard(-card.ability.extra.d_size)
+    end,
+}
+
+-- Blue berry
+SMODS.Joker {
+    key = 'blueBerry',
+    loc_txt = {
+        name = 'Blue Berry',
+        text = {
+                "{C:blue}+#1#{} Hands each round",
+                "reduces by",
+                "{C:red}#2#{} every round",
+            }
+    },
+    atlas = 'jokers',
+    pos = {x = 0, y = 1},
+    rarity = 2,
+    cost = 6,
+    pools = {["finnmodJokers"] = true, ["Food"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
+
+    config = { extra = { h_size = 3, h_loss = 1 }},
+
+    loc_vars = function(self, info_queue, card)
+        return { vars = { card.ability.extra.h_size, card.ability.extra.h_loss } }
+    end,
+
+    calculate = function(self, card, context)
+        if context.end_of_round and context.game_over == false and context.main_eval and not context.blueprint then
+            if card.ability.extra.h_size - card.ability.extra.h_loss <= 0 then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        play_sound('tarot1')
+                        card.T.r = -0.2
+                        card:juice_up(0.3, 0.4)
+                        card.states.drag.is = true
+                        card.children.center.pinch.x = true
+                        G.E_MANAGER:add_event(Event({
+                            trigger = 'after',
+                            delay = 0.3,
+                            blockable = false,
+                            func = function()
+                                card:remove()
+                                return true
+                            end
+                        }))
+                        return true
+                    end
+                }))
+                return {
+                    message = "Eaten",
+                    colour = G.C.RED
+                }
+            else
+                card.ability.extra.h_size = card.ability.extra.h_size - card.ability.extra.h_loss
+                G.GAME.round_resets.hands = G.GAME.round_resets.hands - card.ability.extra.h_loss
+                ease_hands_played(-card.ability.extra.h_size)
+                return {
+                    message = "-" .. card.ability.extra.h_loss,
+                    colour = G.C.RED
+                }
+            end
+        end
+    end,
+
+    add_to_deck = function(self, card, from_debuff)
+        G.GAME.round_resets.hands = G.GAME.round_resets.hands + card.ability.extra.h_size
+        ease_hands_played(card.ability.extra.h_size)
+    end,
+
+    remove_from_deck = function(self, card, from_debuff)
+        G.GAME.round_resets.hands = G.GAME.round_resets.hands - card.ability.extra.h_size
+        ease_hands_played(-card.ability.extra.h_size)
+    end,
+}
+
+-- Golden Apple
+SMODS.Joker {
+    key = 'goldenApple',
+    loc_txt = {
+        name = 'Golden Apple',
+        text = {
+                "Earn {C:money}$#1#{}",
+                "at end of round",
+                "{C:money}-$#2#{} per {C:attention}hand played{}",
+            }
+    },
+    atlas = 'jokers',
+    pos = {x = 0, y = 1},
+    rarity = 2,
+    cost = 6,
+    pools = {["finnmodJokers"] = true, ["Food"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = false,
+    eternal_compat = true,
+    preishable_compat = true,
+
+    config = { extra = { money = 10, moneyLoss = 1 }},
+
+    loc_vars = function(self, info_queue, card)
+        return {vars = { card.ability.extra.money, card.ability.extra.moneyLoss }}
+    end,
+
+    calculate = function(self, card, context)
+        if context.end_of_round and context.game_over == false and context.main_eval and not context.blueprint then
+            if card.ability.extra.money - card.ability.extra.moneyLoss <= 0 then
+                G.E_MANAGER:add_event(Event({
+                    func = function()
+                        play_sound('tarot1')
+                        card.T.r = -0.2
+                        card:juice_up(0.3, 0.4)
+                        card.states.drag.is = true
+                        card.children.center.pinch.x = true
+                        G.E_MANAGER:add_event(Event({
+                            trigger = 'after',
+                            delay = 0.3,
+                            blockable = false,
+                            func = function()
+                                card:remove()
+                                return true
+                            end
+                        }))
+                        return true
+                    end
+                }))
+                return {
+                    message = "Eaten",
+                    colour = G.C.RED
+                }
+            end
+        end
+        if context.before and context.main_eval and not context.blueprint then
+            card.ability.extra.money = card.ability.extra.money - card.ability.extra.moneyLoss
+            return {
+                message = "-" .. card.ability.extra.moneyLoss,
+                colour = G.C.MONEY
+            }
+        end
+    end,
+
+    calc_dollar_bonus = function(self, card)
+        if not context.blueprint then
+            return card.ability.extra.money
+        end
+    end,
+}
+
+-- Dungeon master
+SMODS.Joker {
+    key = 'DM',
+    loc_txt = {
+        name = 'Dungeon Master',
+        text = {
+                "This joker gains {C:attention}+#2#{} {C:green,E:1}Probabilities{}",
+                "When any {C:attention}Booster Pack{} is skipped",
+                "{C:inactive}(Currently{} {C:attention}+#1#{} {C:inactive}Probabilities){}"
+            }
+    },
+    atlas = 'jokers',
+    pos = {x = 2, y = 1},
+    soul_pos = { x = 1, y = 1 },
+    rarity = 4,
+    cost = 20,
+    pools = {["finnmodJokers"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = false,
+    eternal_compat = true,
+    preishable_compat = true,
+
+    config = { extra = { currentProb = 0, addedProbs = 1 }},
+
+    loc_vars = function(self, info_queue, card)
+        return {vars = { card.ability.extra.currentProb, card.ability.extra.addedProbs }}
+    end,
+
+    calculate = function(self, card, context)
+        if context.skipping_booster and not context.blueprint then
+            card.ability.extra.currentProb = card.ability.extra.currentProb + card.ability.extra.addedProbs
+            for k, v in pairs(G.GAME.probabilities) do
+                G.GAME.probabilities[k] = v + card.ability.extra.addedProbs
+            end
+            return {
+                message = "+" .. card.ability.extra.addedProbs,
+                colour = G.C.GREEN,
+            }
+        end
+    end,
+
+    remove_from_deck = function(self, card, from_debuff)
+        for k, v in pairs(G.GAME.probabilities) do
+            G.GAME.probabilities[k] = v - card.ability.extra.currentProb
+        end
+    end,
 }
