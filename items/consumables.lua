@@ -437,27 +437,27 @@ create_gamble_card({
     end
 })
 
--- -- planet card upgrades
--- create_gamble_card({
---     key = 'planet',
---     name = 'Planet',
---     text = {
---         "After {C:attention}#2#{} round {C:green}1 to #4#{}",
---         "selected cards randomly",
---         "enhances to {C:attention}Stained{} cards",
---         "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
---     },
---     pos = { x = 4, y = 0 },
---     config = {
---         roundCount = 0,
---         maxroundCount = 1,
---         maxAmount = 3,
---     },
---     loc_vars = { 'maxAmount' },
---     effect = function(card)
+-- planet card upgrades
+create_gamble_card({
+    key = 'planet',
+    name = 'Planet',
+    text = {
+        "After {C:attention}#2#{} round",
+        "gain {C:attention}2{} {C:planet}Planet{} cards",
+        "for next played hand",
+        "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
+    },
+    pos = { x = 4, y = 0 },
+    config = {
+        roundCount = 0,
+        maxroundCount = 1,
+        maxAmount = 3,
+    },
+    loc_vars = { 'maxAmount' },
+    effect = function(card)
         
---     end
--- })
+    end
+})
 
 -- -- chips forever
 -- create_gamble_card({

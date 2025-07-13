@@ -16,7 +16,6 @@ SMODS.Joker {
     loc_txt = {
         name = 'Dog',
         text = {
-            "arf!",
             "Played {C:attention}cards{} gain {C:mult}+#1#{} mult",
             "{C:green}#2# in #3#{} chance to explode",
             "at end of the round"
@@ -98,8 +97,8 @@ SMODS.Joker {
     loc_txt = {
         name = 'Tomagotchi',
         text = {
-                "{X:mult,C:white}X#1#{} Mult",
-                "need to {C:attention}sell{} stuff to feed it",
+                "{X:mult,C:white}X#1#{} Mult need to",
+                "{C:attention}sell{} stuff to feed it",
                 "else it will {C:attention}die{} of hunger",
                 "{C:inactive}(Currently {}{C:attention}#2#{}{C:inactive} of #3#){}" }
     },
@@ -246,7 +245,7 @@ SMODS.Joker {
         text = {
                 "{C:green}#1# in #2#{} chance to create",
                 "a {C:gamble}Gamble{} card for each",
-                "rerole in the shop",
+                "{C:attention}Rerole{} in the shop",
                 "{C:inactive}(Must have room){}",
             }
     },
@@ -372,7 +371,10 @@ SMODS.Joker {
     loc_txt = {
         name = 'Lucky Gambler',
         text = {
-                "test",
+                "This Joker gains {X:mult,C:white}X0.25{} Mult",
+                "every time you {C:attention}win{} a",
+                "chance in a {C:gamble}Gamble{} card",
+                "{C:inactive}(Currently{} {X:mult,C:white}X1{} {C:inactive}Mult){}",
             }
     },
     atlas = 'jokers',

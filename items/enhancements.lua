@@ -10,7 +10,8 @@ SMODS.Enhancement {
     loc_txt = {
         name = 'Stained Card',
         text = {
-            "ew",
+            "{C:green}1 in 2{} chance for",
+            "{X:mult,C:white}X1.5{} Mult always scores",
         }
     },
     always_scores = true,

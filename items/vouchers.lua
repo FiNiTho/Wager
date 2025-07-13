@@ -47,7 +47,9 @@ SMODS.Voucher {
     loc_txt = {
         name = 'Gamble2',
         text = {
-            "Better chances with {C:gamble}gamble{} cards",
+            "Doubles all {C:attention}listed{}",
+            "{C:green,E:1}probabilities{}",
+            "{inactive}(ex:{} {C:green1 in 3{} {C:inactive}->{} {C:green}2 in 3{}{C:inactive}){}"
         }
     },
     cost = 10,
@@ -65,12 +67,17 @@ SMODS.Voucher {
     },
 
     redeem = function(self, card)
+        for k, v in pairs(G.GAME.probabilities) do
+            G.GAME.probabilities[k] = v * 2
+        end
+
+        G.GAME.pool_flags.gamble2_redeemed = true
+
         G.E_MANAGER:add_event(Event({
             func = function()
                 return true
-            end
+            end,
         }))
-        G.GAME.pool_flags.gamble2_redeemed = true
     end
 }
 
