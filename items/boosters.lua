@@ -18,15 +18,18 @@ SMODS.Booster {
     loc_txt = {
         name = 'Gamble Pack',
         text = {
-            "Choose {C:attention}#1# out of #2#{}",
-            "{C:gamble}Gamble{} cards"
-        }
+            "Choose {C:attention}#1#{} of up to",
+            "{C:attention}#2#{C:gamble} Gamble{} cards",
+        },
+        group_name = {"Gamble Pack"},
     },
 
     config = { extra = 2, choose = 1 },
 
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble } }
+        return { 
+                vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble },
+            }
     end,
 
     create_card = function(self, card)
@@ -52,15 +55,18 @@ SMODS.Booster {
     loc_txt = {
         name = 'Gamble Pack',
         text = {
-            "Choose {C:attention}#1# out of #2#{}",
-            "{C:gamble}Gamble{} cards"
-        }
+            "Choose {C:attention}#1#{} of up to",
+            "{C:attention}#2#{C:gamble} Gamble{} cards",
+        },
+        group_name = {"Gamble Pack"},
     },
 
     config = { extra = 2, choose = 1 },
 
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble } }
+        return { 
+                vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble },
+            }
     end,
 
     create_card = function(self, card)
@@ -86,15 +92,18 @@ SMODS.Booster {
     loc_txt = {
         name = 'Big Gamble Pack',
         text = {
-            "Choose {C:attention}#1# out of #2#{}",
-            "{C:gamble}Gamble{} cards"
-        }
+            "Choose {C:attention}#1#{} of up to",
+            "{C:attention}#2#{C:gamble} Gamble{} cards",
+        },
+        group_name = {"Big Gamble Pack"},
     },
 
     config = { extra = 3, choose = 1 },
 
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble } }
+        return { 
+                vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble },
+            }
     end,
 
     create_card = function(self, card)
@@ -120,15 +129,18 @@ SMODS.Booster {
     loc_txt = {
         name = 'Mega Gamble Pack',
         text = {
-            "Choose {C:attention}#1# out of #2#{}",
-            "{C:gamble}Gamble{} cards"
-        }
+            "Choose {C:attention}#1#{} of up to",
+            "{C:attention}#2#{C:gamble} Gamble{} cards",
+        },
+        group_name = {"Mega Gamble Pack"},
     },
 
     config = { extra = 4, choose = 1 },
 
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble } }
+        return { 
+                vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble },
+            }
     end,
 
     create_card = function(self, card)

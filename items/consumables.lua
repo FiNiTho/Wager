@@ -174,11 +174,26 @@ SMODS.Consumable {
 
     use = function(self, card, area)
         if G.GAME.gamble_shared.currentAmount < card.ability.extra.maxAmount and pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.odds then
-            card_eval_status_text(card, "extra", nil, nil, nil, {
-                message = "Upgraded",
-                colour = G.C.SET.gamble
+            -- card_eval_status_text(card, "extra", nil, nil, nil, {
+            --     message = "Upgraded",
+            --     colour = G.C.SET.gamble
+            -- })
+            attention_text({
+                text = "Upgraded",
+                scale = 1.3,
+                hold = 1.4,
+                major = card,
+                backdrop_colour = G.C.SET.gamble,
+                align = (G.STATE == G.STATES.TAROT_PACK or G.STATE == G.STATES.SPECTRAL_PACK or G.STATE == G.STATES.SMODS_BOOSTER_OPENED) and
+                    'tm' or 'cm',
+                offset = { x = 0, y = (G.STATE == G.STATES.TAROT_PACK or G.STATE == G.STATES.SPECTRAL_PACK or G.STATE == G.STATES.SMODS_BOOSTER_OPENED) and -0.2 or 0 },
+                silent = true
             })
             G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.06 * G.SETTINGS.GAMESPEED,
+                blockable = false,
+                blocking = false,
                 ease_dollars(G.GAME.gamble_shared.currentAmount)
             }))
             G.GAME.gamble_shared.currentAmount = G.GAME.gamble_shared.currentAmount + card.ability.extra.gainAmount

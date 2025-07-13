@@ -13,37 +13,29 @@ SMODS.Seal {
         name = 'Auburn Seal',
         text = {
             "Creates a {C:gamble}Gamble{} card",
-            "when scored",
+            "when only card played",
             "{C:inactive}(Must have room){}"
         }
     },
     atlas = 'misc',
 
     calculate = function(self, card, context)
-        -- Only act during final scoring hand
-        if context.main_scoring and context.cardarea == G.play and context.full_hand then
-            -- Make sure the card is part of the final hand
-            for _, played_card in ipairs(context.full_hand) do
-                if played_card == card then
-                    -- Don't create card if inventory is full
-                    if #G.consumeables.cards < G.consumeables.config.card_limit then
-                        card_eval_status_text(card, "extra", nil, nil, nil, {
-                            message = "+1 Gamble card",
-                            colour = G.C.SET.gamble
-                        })
+        if context.before and #context.full_hand == 1 then
+            if #G.consumeables.cards < G.consumeables.config.card_limit then
+                card_eval_status_text(card, "extra", nil, nil, nil, {
+                    message = "+1 Gamble card",
+                    colour = G.C.SET.gamble
+                })
 
-                        G.E_MANAGER:add_event(Event({
-                            trigger = "after",
-                            delay = 0.2,
-                            func = function()
-                                local new_card = create_card("Gamble", G.consumeables, nil, nil, true, true, nil)
-                                G.consumeables:emplace(new_card)
-                                return true
-                            end
-                        }))
+                G.E_MANAGER:add_event(Event({
+                    trigger = "after",
+                    delay = 0.2,
+                    func = function()
+                        local new_card = create_card("Gamble", G.consumeables, nil, nil, true, true, nil)
+                        G.consumeables:emplace(new_card)
+                        return true
                     end
-                    break
-                end
+                }))
             end
         end
     end

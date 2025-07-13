@@ -8,7 +8,7 @@
 ----------- MOD CODE -------------------------------------
 
 -- shoutout to
--- https://github.com/nh6574/VanillaRemade/blob/main/src/jokers.lua
+-- https://github.com/nh6574/VanillaRemade/
 -- https://discord.com/channels/1116389027176787968/1224362333208444989
 -- cryptid
 -- for helping me understand how to do things with SMODS
