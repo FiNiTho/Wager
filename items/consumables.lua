@@ -41,10 +41,6 @@ local function create_gamble_card(params)
             end)()
         },
 
-        check_for_unlock = function(self, args)
-            unlock_card(self)
-        end,
-
         loc_vars = function(self, info_queue, card)
             info_queue[#info_queue+1] = G.P_CENTERS[params.info1]
             info_queue[#info_queue+1] = G.P_CENTERS[params.info2]
@@ -65,6 +61,9 @@ local function create_gamble_card(params)
                 end
             end
 
+            -- cards can have an calculate effect
+            local result = params.calculateEffect and params.calculateEffect(card, context)
+
             if context.end_of_round and not context.repetition and context.game_over == false then
                 card.ability.extra.roundCount = card.ability.extra.roundCount + 1
 
@@ -73,11 +72,10 @@ local function create_gamble_card(params)
                         return c.ability.extra.roundCount >= c.ability.extra.maxroundCount
                     end, true)
 
-                    card.ability.extra.active = true
-
-                    if card.ability.extra.active == false then
+                    if not card.ability.extra.active then
+                        card.ability.extra.active = true
                         return {
-                            message = "Active",
+                            message = "Active"
                         }
                     end
                 end
@@ -112,7 +110,7 @@ local function create_gamble_card(params)
         use = function(self, card, area, copier)
             if card.ability.extra.active == true then
                 -- Execute the card's effect and capture the return value
-                local result = params.effect and params.effect(card) or nil
+                local result = params.effect and params.effect(card)
 
                 return {}
             else
@@ -121,6 +119,58 @@ local function create_gamble_card(params)
                 new_card:add_to_deck()
                 G.consumeables:emplace(new_card)
             end
+        end
+    }
+end
+
+-- Base gamble card template
+-- without rounds
+local function create_gamble_card_ver2(params)
+    return SMODS.Consumable {
+        key = params.key,
+        loc_txt = {
+            name = params.name,
+            text = params.text
+        },
+        atlas = 'consumables',
+        set = 'Gamble',
+        cost = params.cost or 4,
+        pos = params.pos,
+        config = {
+            extra = (function()
+                local config = params.config or {}
+                return config
+            end)()
+        },
+
+        loc_vars = function(self, info_queue, card)
+            info_queue[#info_queue+1] = G.P_CENTERS[params.info1]
+            info_queue[#info_queue+1] = G.P_CENTERS[params.info2]
+            info_queue[#info_queue+1] = G.P_CENTERS[params.info3]
+            local vars = {(G.GAME.probabilities.normal or 1)}
+            for _, v in ipairs(params.loc_vars or {}) do
+                table.insert(vars, card.ability.extra[v])
+            end
+            return { vars = vars }
+        end,
+
+        calculate = function(self, card, context)
+            -- cards can have an calculate effect
+            local result = params.calculateEffect and params.calculateEffect(card, context)
+        end,
+
+        can_use = function(self, card)
+            if params.can_use_addons and not params.can_use_addons(card) then
+                return false
+            end
+            return true
+        end,
+
+        use = function(self, card, area, copier)
+            -- Execute the card's effect and capture the return value
+            local result = params.effect and params.effect(card)
+
+            return {}
         end
     }
 end
@@ -147,13 +197,9 @@ SMODS.Consumable {
             odds = 2,
             currentAmount = 5,
             gainAmount = 5,
-            maxAmount = 30,
+            maxAmount = 35,
         },     
     },
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
 
     loc_vars = function(self, info_queue, card)
         G.GAME.gamble_shared = G.GAME.gamble_shared or {
@@ -174,10 +220,6 @@ SMODS.Consumable {
 
     use = function(self, card, area)
         if G.GAME.gamble_shared.currentAmount < card.ability.extra.maxAmount and pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.odds then
-            -- card_eval_status_text(card, "extra", nil, nil, nil, {
-            --     message = "Upgraded",
-            --     colour = G.C.SET.gamble
-            -- })
             attention_text({
                 text = "Upgraded",
                 scale = 1.3,
@@ -304,19 +346,15 @@ else-- Normal roulette version
 end
 
 -- Cocktail gamble card
-create_gamble_card({
+create_gamble_card_ver2({
     key = 'cocktail',
     name = 'Cocktail',
     text = {
-        "After {C:attention}#2#{} round {C:green}1 to #4#{}",
-        "selected cards randomly",
+        "{C:green}1 to #2#{} selected cards randomly",
         "enhances to {C:attention}Stained{} cards",
-        "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
     },
     pos = { x = 2, y = 0 },
     config = {
-        roundCount = 0,
-        maxroundCount = 1,
         maxAmount = 3,
     },
     info1 = 'm_finnmod_stained',
@@ -386,17 +424,12 @@ create_gamble_card({
     pos = { x = 3, y = 0 },
     config = {
         roundCount = 0,
-        maxroundCount = 3,
-        odds = 100,
-        negetiveOdds = 5,
-        polychromeOdds = 10,
-        holographicOdds = 35,
-        foilOdds = 40,
+        maxroundCount = 2,
     },
     info1 = 'e_foil',
     info2 = 'e_holo',
     info3 = 'e_polychrome',
-    loc_vars = {'odds', 'negetiveOdds', 'polychromeOdds', 'holographicOdds', 'foilOdds'},
+    loc_vars = {},
     effect = function(card)
         local eligibleJokers = {}
         for i = 1, #G.jokers.cards do
@@ -443,8 +476,8 @@ create_gamble_card({
     name = 'Planet',
     text = {
         "After {C:attention}#2#{} round",
-        "gain {C:attention}2{} {C:planet}Planet{} cards",
-        "for next played hand",
+        "gain {C:attention}2{} {C:planet}Planet{} cards for",
+        "last played hand{C:inactive}({}{C:attention}#5#{}{C:inactive}){}",
         "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
     },
     pos = { x = 4, y = 0 },
@@ -452,56 +485,185 @@ create_gamble_card({
         roundCount = 0,
         maxroundCount = 1,
         maxAmount = 3,
+        currentHand = 'none',
+        currentPlanet = '',
     },
-    loc_vars = { 'maxAmount' },
+    loc_vars = { 'maxAmount', 'currentHand', 'currentPlanet' },
     effect = function(card)
-        
+        for i = 1, math.min(2, G.consumeables.config.card_limit - #G.consumeables.cards) do
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.4,
+                func = function()
+                    if G.consumeables.config.card_limit > #G.consumeables.cards then
+                        play_sound('timpani')
+                        SMODS.add_card({ key = card.ability.extra.currentPlanet })
+                        card:juice_up(0.3, 0.5)
+                    end
+                    return true
+                end
+            }))
+        end
+        delay(0.6)
+    end,
+
+    calculateEffect = function(card, context)
+        if context.before and context.main_eval then
+            G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+            G.E_MANAGER:add_event(Event({
+                trigger = 'before',
+                delay = 0.0,
+                func = function()
+                    if G.GAME.last_hand_played then
+                        local _planet = nil
+                        for k, v in pairs(G.P_CENTER_POOLS.Planet) do
+                            if v.config.hand_type == G.GAME.last_hand_played then
+                                card.ability.extra.currentHand = v.config.hand_type
+                                _planet = v.key
+                                card.ability.extra.currentPlanet = _planet
+                            end
+                        end
+                    end
+                    return true
+                end
+            }))
+        end
+    end,
+
+    can_use_addons = function(card)
+        return card.ability.extra.currentPlanet
     end
 })
 
--- -- chips forever
--- create_gamble_card({
---     key = 'chipsForever',
---     name = 'Chips Forever',
---     text = {
---         "After {C:attention}#2#{} round {C:green}1 to #4#{}",
---         "selected cards randomly",
---         "enhances to {C:attention}Stained{} cards",
---         "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
---     },
---     pos = { x = 4, y = 0 },
---     config = {
---         roundCount = 0,
---         maxroundCount = 1,
---         maxAmount = 3,
---     },
---     loc_vars = { 'maxAmount' },
---     effect = function(card)
-        
---     end
--- })
+-- perma chips
+create_gamble_card_ver2({
+    key = 'permaChips',
+    name = 'Perma Chips',
+    text = {
+        "{C:attention}#2#{} random cards in your hand",
+        "permanently gain {C:chips}+#5#{} Chips",
+        "{C:green}#1# in #4#{} chance to affect {C:attention}#3#{}"
+    },
+    pos = { x = 4, y = 0 },
+    config = {
+        smallUpgrade = 3,
+        bigUpgrade = 5,
+        bigUpgradeOdds = 3,
+        chipsAmount = 20,
+    },
+    loc_vars = { 'smallUpgrade', 'bigUpgrade', 'bigUpgradeOdds', 'chipsAmount' },
+    effect = function(card)
+        local upgraded_cards = {}
+        local temp_hand = {}
 
--- -- mult forever
--- create_gamble_card({
---     key = 'multForever',
---     name = 'Mult Forever',
---     text = {
---         "After {C:attention}#2#{} round {C:green}1 to #4#{}",
---         "selected cards randomly",
---         "enhances to {C:attention}Stained{} cards",
---         "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
---     },
---     pos = { x = 4, y = 0 },
---     config = {
---         roundCount = 0,
---         maxroundCount = 1,
---         maxAmount = 3,
---     },
---     loc_vars = { 'maxAmount' },
---     effect = function(card)
-        
---     end
--- })
+        for _, playing_card in ipairs(G.hand.cards) do
+            temp_hand[#temp_hand + 1] = playing_card
+        end
+
+        table.sort(temp_hand,
+            function(a, b)
+                return not a.playing_card or not b.playing_card or a.playing_card < b.playing_card
+            end
+        )
+
+        pseudoshuffle(temp_hand, math.random(1000))
+
+        if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.bigUpgradeOdds then
+            for i = 1, card.ability.extra.bigUpgrade do
+                upgraded_cards[#upgraded_cards + 1] = temp_hand[i]
+            end
+        else
+            for i = 1, card.ability.extra.smallUpgrade do
+                upgraded_cards[#upgraded_cards + 1] = temp_hand[i]
+            end
+        end
+
+        for _, c in ipairs(upgraded_cards) do
+            c.ability.perma_bonus = (c.ability.perma_bonus or 1) + card.ability.extra.chipsAmount
+        end
+
+         G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.4,
+            func = function()
+                play_sound('tarot1')
+                card:juice_up(0.3, 0.5)
+                -- Make each upgraded card do a little bounce
+                for _, c in ipairs(upgraded_cards) do
+                    if c.juice_up then
+                        c:juice_up(0.2, 0.4)
+                    end
+                end
+                return true
+            end
+        }))
+    end
+})
+
+-- perma mult
+create_gamble_card_ver2({
+    key = 'permaMult',
+    name = 'Perma Mult',
+    text = {
+        "{C:attention}#2#{} random cards in your hand",
+        "permanently gain {C:mult}+#5#{} Mult",
+        "{C:green}#1# in #4#{} chance to affect {C:attention}#3#{}"
+    },
+    pos = { x = 4, y = 0 },
+    config = {
+        smallUpgrade = 3,
+        bigUpgrade = 5,
+        bigUpgradeOdds = 3,
+        multAmount = 2,
+    },
+    loc_vars = { 'smallUpgrade', 'bigUpgrade', 'bigUpgradeOdds', 'multAmount' },
+    effect = function(card)
+        local upgraded_cards = {}
+        local temp_hand = {}
+
+        for _, playing_card in ipairs(G.hand.cards) do
+            temp_hand[#temp_hand + 1] = playing_card
+        end
+
+        table.sort(temp_hand,
+            function(a, b)
+                return not a.playing_card or not b.playing_card or a.playing_card < b.playing_card
+            end
+        )
+
+        pseudoshuffle(temp_hand, math.random(1000))
+
+        if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.bigUpgradeOdds then
+            for i = 1, card.ability.extra.bigUpgrade do
+                upgraded_cards[#upgraded_cards + 1] = temp_hand[i]
+            end
+        else
+            for i = 1, card.ability.extra.smallUpgrade do
+                upgraded_cards[#upgraded_cards + 1] = temp_hand[i]
+            end
+        end
+
+        for _, c in ipairs(upgraded_cards) do
+            c.ability.perma_mult = (c.ability.perma_mult or 1) + card.ability.extra.multAmount
+        end
+
+         G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.4,
+            func = function()
+                play_sound('tarot1')
+                card:juice_up(0.3, 0.5)
+                -- Make each upgraded card do a little bounce
+                for _, c in ipairs(upgraded_cards) do
+                    if c.juice_up then
+                        c:juice_up(0.2, 0.4)
+                    end
+                end
+                return true
+            end
+        }))
+    end
+})
 
 -- -- misc cryptid stuff gamble card
 -- if (SMODS.Mods["Cryptid"] or {}).can_load then

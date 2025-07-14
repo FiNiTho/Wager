@@ -616,16 +616,14 @@ SMODS.Joker {
         if context.before and context.main_eval and not context.blueprint then
             card.ability.extra.money = card.ability.extra.money - card.ability.extra.moneyLoss
             return {
-                message = "-" .. card.ability.extra.moneyLoss,
+                message = "-$" .. card.ability.extra.moneyLoss,
                 colour = G.C.MONEY
             }
         end
     end,
 
     calc_dollar_bonus = function(self, card)
-        if not context.blueprint then
-            return card.ability.extra.money
-        end
+        return card.ability.extra.money
     end,
 }
 

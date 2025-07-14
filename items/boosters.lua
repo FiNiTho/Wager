@@ -12,7 +12,7 @@ SMODS.Booster {
     atlas = "boosters",
     weight = 1,
     pos = { x = 0, y = 0 },
-    draw_hand = false,
+    draw_hand = true,
     kind = "Gamble",
 
     loc_txt = {
@@ -49,7 +49,7 @@ SMODS.Booster {
     atlas = "boosters",
     weight = 1,
     pos = { x = 1, y = 0 },
-    draw_hand = false,
+    draw_hand = true,
     kind = "Gamble",
 
     loc_txt = {
@@ -86,7 +86,7 @@ SMODS.Booster {
     atlas = "boosters",
     weight = 0.8,
     pos = { x = 2, y = 0 },
-    draw_hand = false,
+    draw_hand = true,
     kind = "Gamble",
 
     loc_txt = {
@@ -123,7 +123,7 @@ SMODS.Booster {
     atlas = "boosters",
     weight = 0.4,
     pos = { x = 3, y = 0 },
-    draw_hand = false,
+    draw_hand = true,
     kind = "Gamble",
 
     loc_txt = {
