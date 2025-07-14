@@ -371,10 +371,10 @@ SMODS.Joker {
     loc_txt = {
         name = 'Lucky Gambler',
         text = {
-                "This Joker gains {X:mult,C:white}X0.25{} Mult",
+                "This Joker gains {X:mult,C:white}X#2#{} Mult",
                 "every time you {C:attention}win{} a",
                 "chance in a {C:gamble}Gamble{} card",
-                "{C:inactive}(Currently{} {X:mult,C:white}X1{} {C:inactive}Mult){}",
+                "{C:inactive}(Currently{} {X:mult,C:white}X#1#{} {C:inactive}Mult){}",
             }
     },
     atlas = 'jokers',
@@ -389,14 +389,23 @@ SMODS.Joker {
     eternal_compat = true,
     preishable_compat = true,
 
-    config = { extra = { }},
+    config = { extra = { x_mult = 1, gain = 0.25 }},
 
     loc_vars = function(self, info_queue, card)
-        return {vars = { }}
+        return {vars = { card.ability.extra.x_mult, card.ability.extra.gain }}
     end,
 
     calculate = function(self, card, context)
-        
+        if G.GAME.pool_flags.gambleWin == true then
+            card.ability.extra.x_mult = card.ability.extra.x_mult + card.ability.extra.gain
+            G.GAME.pool_flags.gambleWin = false
+        end
+
+        if context.joker_main then
+            return {
+                x_mult = card.ability.extra.x_mult
+            }
+        end
     end,
 }
 
