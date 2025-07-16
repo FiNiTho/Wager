@@ -10,7 +10,7 @@ SMODS.Atlas {
 SMODS.Sound({key = "arf", path = "arf.ogg",})
 SMODS.Sound({key = "arfBoom", path = "arfBoom.ogg",})
 
--- Dog
+-- Dog joker
 SMODS.Joker {
     key = 'dog',
     loc_txt = {
@@ -230,6 +230,7 @@ SMODS.Joker {
                         end
                     }))
                 end
+                G.GAME.consumeable_buffer = 0
             end
         end
     end
@@ -250,7 +251,7 @@ SMODS.Joker {
             }
     },
     atlas = 'jokers',
-    rarity = 1,
+    rarity = 2,
     cost = 4,
     pools = {["finnmodJokers"] = true, ["gambleJoker"] = true},
 
@@ -365,20 +366,21 @@ else
     }
 end
 
--- Lucky Gambler
+-- The House joker
 SMODS.Joker {
-    key = 'luckyGambler',
+    key = 'house',
     loc_txt = {
-        name = 'Lucky Gambler',
+        name = 'The House',
         text = {
                 "This Joker gains {X:mult,C:white}X#2#{} Mult",
                 "every time you {C:attention}win{} a",
                 "chance in a {C:gamble}Gamble{} card",
                 "{C:inactive}(Currently{} {X:mult,C:white}X#1#{} {C:inactive}Mult){}",
-            }
+            },
+        
     },
     atlas = 'jokers',
-    pos = {x = 0, y = 1},
+    pos = {x = 5, y = 1},
     rarity = 3,
     cost = 8,
     pools = {["finnmodJokers"] = true},
@@ -409,11 +411,11 @@ SMODS.Joker {
     end,
 }
 
--- Nectarine
+-- Sweet Pepper
 SMODS.Joker {
-    key = 'nectarine',
+    key = 'sweetPepper',
     loc_txt = {
-        name = 'Nectarine',
+        name = 'Sweet Pepper',
         text = {
                 "{C:red}+#1#{} Discards each round",
                 "reduces by",
@@ -421,7 +423,7 @@ SMODS.Joker {
             }
     },
     atlas = 'jokers',
-    pos = {x = 0, y = 1},
+    pos = {x = 6, y = 0},
     rarity = 2,
     cost = 6,
     pools = {["finnmodJokers"] = true, ["Food"] = true},
@@ -499,7 +501,7 @@ SMODS.Joker {
             }
     },
     atlas = 'jokers',
-    pos = {x = 0, y = 1},
+    pos = {x = 6, y = 1},
     rarity = 2,
     cost = 6,
     pools = {["finnmodJokers"] = true, ["Food"] = true},
@@ -577,7 +579,7 @@ SMODS.Joker {
             }
     },
     atlas = 'jokers',
-    pos = {x = 0, y = 1},
+    pos = {x = 5, y = 0},
     rarity = 2,
     cost = 6,
     pools = {["finnmodJokers"] = true, ["Food"] = true},
@@ -636,25 +638,28 @@ SMODS.Joker {
     end,
 }
 
--- Dungeon master
+-- Till/Till Eulenspiegel
 SMODS.Joker {
-    key = 'DM',
+    key = 'till',
     loc_txt = {
-        name = 'Dungeon Master',
+        name = 'Till',
         text = {
                 "This joker gains {C:attention}+#2#{} {C:green,E:1}Probabilities{}",
                 "When any {C:attention}Booster Pack{} is skipped",
                 "{C:inactive}(Currently{} {C:attention}+#1#{} {C:inactive}Probabilities){}"
-            }
+            },
+        unlock = {
+            "{E:1,s:1.3}?????",
+        },
     },
     atlas = 'jokers',
-    pos = {x = 2, y = 1},
-    soul_pos = { x = 1, y = 1 },
+    pos = {x = 3, y = 1},
+    soul_pos = { x = 4, y = 1 },
     rarity = 4,
     cost = 20,
     pools = {["finnmodJokers"] = true},
 
-    unlocked = true,
+    unlocked = false,
     discovered = false,
     blueprint_compat = false,
     eternal_compat = true,

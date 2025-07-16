@@ -497,71 +497,6 @@ create_gamble_card({
     end
 })
 
--- planet card upgrades
-create_gamble_card({
-    key = 'planet',
-    name = 'Planet',
-    text = {
-        "After {C:attention}#2#{} round",
-        "gain {C:attention}2{} {C:planet}Planet{} cards for",
-        "last played hand{C:inactive}({}{C:attention}#5#{}{C:inactive}){}",
-        "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
-    },
-    pos = { x = 4, y = 0 },
-    config = {
-        roundCount = 0,
-        maxroundCount = 1,
-        maxAmount = 3,
-        currentHand = 'none',
-        currentPlanet = '',
-    },
-    loc_vars = { 'maxAmount', 'currentHand', 'currentPlanet' },
-    effect = function(card)
-        for i = 1, math.min(2, G.consumeables.config.card_limit - #G.consumeables.cards) do
-            G.E_MANAGER:add_event(Event({
-                trigger = 'after',
-                delay = 0.4,
-                func = function()
-                    if G.consumeables.config.card_limit > #G.consumeables.cards then
-                        play_sound('timpani')
-                        SMODS.add_card({ key = card.ability.extra.currentPlanet })
-                        card:juice_up(0.3, 0.5)
-                    end
-                    return true
-                end
-            }))
-        end
-        delay(0.6)
-    end,
-
-    calculateEffect = function(card, context)
-        if context.before and context.main_eval then
-            G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
-            G.E_MANAGER:add_event(Event({
-                trigger = 'before',
-                delay = 0.0,
-                func = function()
-                    if G.GAME.last_hand_played then
-                        local _planet = nil
-                        for k, v in pairs(G.P_CENTER_POOLS.Planet) do
-                            if v.config.hand_type == G.GAME.last_hand_played then
-                                card.ability.extra.currentHand = v.config.hand_type
-                                _planet = v.key
-                                card.ability.extra.currentPlanet = _planet
-                            end
-                        end
-                    end
-                    return true
-                end
-            }))
-        end
-    end,
-
-    can_use_addons = function(card)
-        return card.ability.extra.currentPlanet
-    end
-})
-
 -- perma chips
 create_gamble_card_ver2({
     key = 'permaChips',
@@ -571,7 +506,7 @@ create_gamble_card_ver2({
         "permanently gain {C:chips}+#5#{} Chips",
         "{C:green}#1# in #4#{} chance to affect {C:attention}#3#{}"
     },
-    pos = { x = 4, y = 0 },
+    pos = { x = 0, y = 2 },
     config = {
         smallUpgrade = 3,
         bigUpgrade = 5,
@@ -633,8 +568,73 @@ create_gamble_card_ver2({
     end
 })
 
+-- Orbit Pool/Orbital Pool gamble card
+create_gamble_card({
+    key = 'orbitalPool',
+    name = 'Orbital Pool',
+    text = {
+        "After {C:attention}#2#{} round",
+        "gain {C:attention}2{} {C:planet}Planet{} cards for",
+        "last played hand{C:inactive}(#5#){}",
+        "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
+    },
+    pos = { x = 4, y = 0 },
+    config = {
+        roundCount = 0,
+        maxroundCount = 1,
+        maxAmount = 3,
+        currentHand = 'none',
+        currentPlanet = '',
+    },
+    loc_vars = { 'maxAmount', 'currentHand', 'currentPlanet' },
+    effect = function(card)
+        for i = 1, math.min(2, G.consumeables.config.card_limit - #G.consumeables.cards) do
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.4,
+                func = function()
+                    if G.consumeables.config.card_limit > #G.consumeables.cards then
+                        play_sound('timpani')
+                        SMODS.add_card({ key = card.ability.extra.currentPlanet })
+                        card:juice_up(0.3, 0.5)
+                    end
+                    return true
+                end
+            }))
+        end
+        delay(0.6)
+    end,
+
+    calculateEffect = function(card, context)
+        if context.before and context.main_eval then
+            G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+            G.E_MANAGER:add_event(Event({
+                trigger = 'before',
+                delay = 0.0,
+                func = function()
+                    if G.GAME.last_hand_played then
+                        local _planet = nil
+                        for k, v in pairs(G.P_CENTER_POOLS.Planet) do
+                            if v.config.hand_type == G.GAME.last_hand_played then
+                                card.ability.extra.currentHand = v.config.hand_type
+                                _planet = v.key
+                                card.ability.extra.currentPlanet = _planet
+                            end
+                        end
+                    end
+                    return true
+                end
+            }))
+        end
+    end,
+
+    can_use_addons = function(card)
+        return card.ability.extra.currentPlanet
+    end
+})
+
 -- perma mult
-create_gamble_card_ver2({
+create_gamble_card_ver2({ 
     key = 'permaMult',
     name = 'Perma Mult',
     text = {
@@ -642,7 +642,7 @@ create_gamble_card_ver2({
         "permanently gain {C:mult}+#5#{} Mult",
         "{C:green}#1# in #4#{} chance to affect {C:attention}#3#{}"
     },
-    pos = { x = 4, y = 0 },
+    pos = { x = 0, y = 2 },
     config = {
         smallUpgrade = 3,
         bigUpgrade = 5,

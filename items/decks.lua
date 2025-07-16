@@ -11,7 +11,7 @@ SMODS.Back{
     loc_txt = {
         name = "Dog",
         text={
-        "Start with {C:attention}5{} dog jokers",
+        "Start with {C:attention}5{} {C:attention,T:j_finnmod_dog}dog{} jokers",
         "create another one",
         "when boss blind is defeated",
         "{C:inactive}(must have room){}"
