@@ -83,7 +83,7 @@ SMODS.Back{
         text={
         "Start run with",
         "one of the {C:gamble}Gamble{} jokers",
-        "and the {C:gamble,T:v_finnmod_gamble}Gamble{} voucher",
+        "and the {C:gamble,T:v_finnmod_bet}Bet{} voucher",
         },
         unlock = {
         "Unlock by exploding the",
@@ -91,7 +91,7 @@ SMODS.Back{
         },
     },
 	
-	config = { vouchers = { "v_finnmod_gamble" } },
+	config = { vouchers = { "v_finnmod_bet" } },
 	pos = { x = 1, y = 0 },
 	order = 1,
 	atlas = "decks",
