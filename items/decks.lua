@@ -1,6 +1,6 @@
 SMODS.Atlas{
-    key = 'dogdeck',
-    path = 'dogdeck.png',
+    key = 'decks',
+    path = 'decks.png',
     px = 71,
     py = 95,
 }
@@ -25,7 +25,7 @@ SMODS.Back{
 	config = { hands = 0, discards = 0, joker = 'dog'},
 	pos = { x = 0, y = 0 },
 	order = 1,
-	atlas = "dogdeck",
+	atlas = "decks",
     discovered = false,
     unlocked = false,
 
@@ -92,9 +92,9 @@ SMODS.Back{
     },
 	
 	config = { vouchers = { "v_finnmod_gamble" } },
-	pos = { x = 0, y = 0 },
+	pos = { x = 1, y = 0 },
 	order = 1,
-	atlas = "dogdeck",
+	atlas = "decks",
     discovered = false,
     unlocked = false,
 

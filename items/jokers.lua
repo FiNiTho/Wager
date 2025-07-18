@@ -97,10 +97,10 @@ SMODS.Joker {
     loc_txt = {
         name = 'Tomagotchi',
         text = {
-                "{X:mult,C:white}X#1#{} Mult need to",
-                "{C:attention}sell{} stuff to feed it",
-                "else it will {C:attention}die{} of hunger",
-                "{C:inactive}(Currently {}{C:attention}#2#{}{C:inactive} of #3#){}" }
+                "{X:mult,C:white}X#1#{} Mult {C:attention}sell{} cards",
+                "to up hunger, if hunger",
+                "is 0 {C:red,E:1}self distruct{}",
+                "{C:inactive}(Currently {}{C:attention}#2#{}{C:inactive}/#3#){}" }
     },
     atlas = 'jokers',
     rarity = 3,
@@ -175,8 +175,8 @@ SMODS.Joker {
     loc_txt = {
         name = 'Jackpot',
         text = {
-                "If {C:attention}first hand{} of round countains",
-                "{C:attention}three 7's{} create a {C:gamble}Gamble{} card",
+                "If {C:attention}hand{} countains {C:attention}three 7's{}",
+                "create a {C:gamble}Gamble{} card",
                 "{C:inactive}(Must have room){}"}
     },
     atlas = 'jokers',
@@ -418,8 +418,8 @@ SMODS.Joker {
         name = 'Sweet Pepper',
         text = {
                 "{C:red}+#1#{} Discards each round",
-                "reduces by",
-                "{C:red}#2#{} every round",
+                "reduces by {C:red}#2#{} every {C:attention}#4#{} {C:inactive}[#3#]{}",
+                "cards scored",
             }
     },
     atlas = 'jokers',
@@ -434,48 +434,61 @@ SMODS.Joker {
     eternal_compat = true,
     preishable_compat = true,
 
-    config = { extra = { d_size = 3, d_loss = 1 }},
+    config = { extra = { d_size = 3, d_loss = 1, cards_remaining = 10, cards = 10  }},
 
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra.d_size, card.ability.extra.d_loss } }
+        return { vars = { card.ability.extra.d_size, card.ability.extra.d_loss, card.ability.extra.cards_remaining, card.ability.extra.cards } }
     end,
 
     calculate = function(self, card, context)
-        if context.end_of_round and context.game_over == false and context.main_eval and not context.blueprint then
-            if card.ability.extra.d_size - card.ability.extra.d_loss <= 0 then
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        play_sound('tarot1')
-                        card.T.r = -0.2
-                        card:juice_up(0.3, 0.4)
-                        card.states.drag.is = true
-                        card.children.center.pinch.x = true
-                        G.E_MANAGER:add_event(Event({
-                            trigger = 'after',
-                            delay = 0.3,
-                            blockable = false,
-                            func = function()
-                                card:remove()
-                                return true
-                            end
-                        }))
-                        return true
+        -- Prevent multiple triggers
+        if card.marked_for_removal then return end
+
+        if card.ability.extra.d_size <= 0 then
+            card.marked_for_removal = true  -- Mark for removal
+
+            G.E_MANAGER:add_event(Event({
+                func = function()
+                    play_sound('tarot1')
+                    card.T.r = -0.2
+                    card:juice_up(0.3, 0.4)
+                    card.states.drag.is = true
+                    card.children.center.pinch.x = true
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.3,
+                        blockable = false,
+                        func = function()
+                            card:remove()
+                            return true
+                        end
+                    }))
+                    return true
+                end
+            }))
+
+            return {
+                message = "Eaten",
+                colour = G.C.RED
+            }
+
+            elseif context.individual then
+                if card.ability.extra.cards_remaining <= 1 then
+                    card.ability.extra.cards_remaining = card.ability.extra.cards
+                    card.ability.extra.d_size = card.ability.extra.d_size - card.ability.extra.d_loss
+                    G.GAME.round_resets.discards = G.GAME.round_resets.discards - card.ability.extra.d_loss
+                    if card.ability.extra.d_size <= 0 then
+                    else
+                        return {
+                            message = "-" .. card.ability.extra.d_loss,
+                            colour = G.C.RED
+                        }
                     end
-                }))
-                return {
-                    message = "Eaten",
-                    colour = G.C.RED
-                }
-            else
-                card.ability.extra.d_size = card.ability.extra.d_size - card.ability.extra.d_loss
-                G.GAME.round_resets.discards = G.GAME.round_resets.discards - card.ability.extra.d_loss
-                ease_discard(-card.ability.extra.d_size)
-                return {
-                    message = "-" .. card.ability.extra.d_loss,
-                    colour = G.C.RED
-                }
+                else
+                    card.ability.extra.cards_remaining = card.ability.extra.cards_remaining - 1
+                    return nil, true -- This is for Joker retrigger purposes
+                end
             end
-        end
     end,
 
     add_to_deck = function(self, card, from_debuff)
@@ -496,8 +509,8 @@ SMODS.Joker {
         name = 'Blue Berry',
         text = {
                 "{C:blue}+#1#{} Hands each round",
-                "reduces by",
-                "{C:red}#2#{} every round",
+                "reduces by {C:red}#2#{} every {C:attention}#4#{} {C:inactive}[#3#]{}",
+                "cards discarded",
             }
     },
     atlas = 'jokers',
@@ -512,49 +525,63 @@ SMODS.Joker {
     eternal_compat = true,
     preishable_compat = true,
 
-    config = { extra = { h_size = 3, h_loss = 1 }},
+    config = { extra = { h_size = 3, h_loss = 1, discards_remaining = 15, discards = 15 }},
 
     loc_vars = function(self, info_queue, card)
-        return { vars = { card.ability.extra.h_size, card.ability.extra.h_loss } }
+        return { vars = { card.ability.extra.h_size, card.ability.extra.h_loss, card.ability.extra.discards_remaining, card.ability.extra.discards } }
     end,
 
     calculate = function(self, card, context)
-        if context.end_of_round and context.game_over == false and context.main_eval and not context.blueprint then
-            if card.ability.extra.h_size - card.ability.extra.h_loss <= 0 then
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        play_sound('tarot1')
-                        card.T.r = -0.2
-                        card:juice_up(0.3, 0.4)
-                        card.states.drag.is = true
-                        card.children.center.pinch.x = true
-                        G.E_MANAGER:add_event(Event({
-                            trigger = 'after',
-                            delay = 0.3,
-                            blockable = false,
-                            func = function()
-                                card:remove()
-                                return true
-                            end
-                        }))
-                        return true
+        -- Prevent multiple triggers
+        if card.marked_for_removal then return end
+
+        if card.ability.extra.h_size <= 0 then
+            card.marked_for_removal = true  -- Mark for removal
+
+            G.E_MANAGER:add_event(Event({
+                func = function()
+                    play_sound('tarot1')
+                    card.T.r = -0.2
+                    card:juice_up(0.3, 0.4)
+                    card.states.drag.is = true
+                    card.children.center.pinch.x = true
+                    G.E_MANAGER:add_event(Event({
+                        trigger = 'after',
+                        delay = 0.3,
+                        blockable = false,
+                        func = function()
+                            card:remove()
+                            return true
+                        end
+                    }))
+                    return true
+                end
+            }))
+
+            return {
+                message = "Eaten",
+                colour = G.C.RED
+            }
+
+            elseif context.discard and not context.blueprint then
+                if card.ability.extra.discards_remaining <= 1 then
+                    card.ability.extra.discards_remaining = card.ability.extra.discards
+                    card.ability.extra.h_size = card.ability.extra.h_size - card.ability.extra.h_loss
+                    G.GAME.round_resets.hands = G.GAME.round_resets.hands - card.ability.extra.h_loss
+                    if card.ability.extra.h_size <= 0 then
+                    else
+                        return {
+                            message = "-" .. card.ability.extra.h_loss,
+                            colour = G.C.BLUE
+                        }
                     end
-                }))
-                return {
-                    message = "Eaten",
-                    colour = G.C.RED
-                }
-            else
-                card.ability.extra.h_size = card.ability.extra.h_size - card.ability.extra.h_loss
-                G.GAME.round_resets.hands = G.GAME.round_resets.hands - card.ability.extra.h_loss
-                ease_hands_played(-card.ability.extra.h_size)
-                return {
-                    message = "-" .. card.ability.extra.h_loss,
-                    colour = G.C.RED
-                }
+                else
+                    card.ability.extra.discards_remaining = card.ability.extra.discards_remaining - 1
+                    return nil, true -- This is for Joker retrigger purposes
+                end
             end
-        end
     end,
+
 
     add_to_deck = function(self, card, from_debuff)
         G.GAME.round_resets.hands = G.GAME.round_resets.hands + card.ability.extra.h_size
@@ -590,7 +617,7 @@ SMODS.Joker {
     eternal_compat = true,
     preishable_compat = true,
 
-    config = { extra = { money = 10, moneyLoss = 1 }},
+    config = { extra = { money = 10, moneyLoss = 1, playAmount = 10 }},
 
     loc_vars = function(self, info_queue, card)
         return {vars = { card.ability.extra.money, card.ability.extra.moneyLoss }}

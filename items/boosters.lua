@@ -24,7 +24,7 @@ SMODS.Booster {
         group_name = {"Gamble Pack"},
     },
 
-    config = { extra = 2, choose = 1 },
+    config = { extra = 3, choose = 1 },
 
     loc_vars = function(self, info_queue, card)
         return { 
@@ -61,7 +61,7 @@ SMODS.Booster {
         group_name = {"Gamble Pack"},
     },
 
-    config = { extra = 2, choose = 1 },
+    config = { extra = 3, choose = 1 },
 
     loc_vars = function(self, info_queue, card)
         return { 
@@ -79,9 +79,9 @@ SMODS.Booster {
     end
 }
 
--- big gamble pack
+-- jumbo gamble pack
 SMODS.Booster {
-    key = "gambleBig",
+    key = "gambleJumbo",
     cost = 6,
     atlas = "boosters",
     weight = 0.8,
@@ -90,7 +90,7 @@ SMODS.Booster {
     kind = "Gamble",
 
     loc_txt = {
-        name = 'Big Gamble Pack',
+        name = 'Jumbo Gamble Pack',
         text = {
             "Choose {C:attention}#1#{} of up to",
             "{C:attention}#2#{C:gamble} Gamble{} cards",
@@ -98,7 +98,7 @@ SMODS.Booster {
         group_name = {"Big Gamble Pack"},
     },
 
-    config = { extra = 3, choose = 1 },
+    config = { extra = 4, choose = 1 },
 
     loc_vars = function(self, info_queue, card)
         return { 
@@ -107,7 +107,7 @@ SMODS.Booster {
     end,
 
     create_card = function(self, card)
-		return create_card("Gamble", G.pack_cards, nil, nil, true, true, nil, "gambleBig")
+		return create_card("Gamble", G.pack_cards, nil, nil, true, true, nil, "gambleJumbo")
 	end,
 
     ease_background_colour = function(self)
@@ -121,7 +121,7 @@ SMODS.Booster {
     key = "gambleMega",
     cost = 6,
     atlas = "boosters",
-    weight = 0.4,
+    weight = 0.25,
     pos = { x = 3, y = 0 },
     draw_hand = true,
     kind = "Gamble",
@@ -135,7 +135,7 @@ SMODS.Booster {
         group_name = {"Mega Gamble Pack"},
     },
 
-    config = { extra = 4, choose = 1 },
+    config = { extra = 5, choose = 2 },
 
     loc_vars = function(self, info_queue, card)
         return { 

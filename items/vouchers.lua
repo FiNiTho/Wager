@@ -5,11 +5,11 @@ SMODS.Atlas {
     py = 95,
 }
 
--- first gamble voucher
+-- bet voucher
 SMODS.Voucher {
-    key = 'gamble',
+    key = 'bet',
     loc_txt = {
-        name = 'Gamble',
+        name = 'Bet',
         text = {
             "{C:gamble}Gamble{} cards can be",
             "bought from the store"
@@ -41,11 +41,11 @@ SMODS.Voucher {
 
 }
 
--- second gamble voucher
+-- All-in voucher
 SMODS.Voucher {
-    key = 'gamble2',
+    key = 'allIn',
     loc_txt = {
-        name = 'Gamble2',
+        name = 'All-in',
         text = {
             "Doubles all {C:attention}listed{}",
             "{C:green,E:1}probabilities{}",
@@ -81,12 +81,12 @@ SMODS.Voucher {
     end
 }
 
--- third gamble voucher
+-- debt voucher
 if (SMODS.Mods["Cryptid"] or {}).can_load then
     SMODS.Voucher {
-    key = 'gamble3',
+    key = 'debt',
     loc_txt = {
-        name = 'Gamble3',
+        name = 'Debt',
         text = {
             "Nothing yet again >:)",
         }

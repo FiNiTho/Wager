@@ -1,7 +1,7 @@
 SMODS.Atlas {
     key = 'consumables',
     path = 'consumables.png',
-    px = 70,
+    px = 71,
     py = 95
 }
 
@@ -497,16 +497,16 @@ create_gamble_card({
     end
 })
 
--- perma chips
+-- Black Jack gamble card
 create_gamble_card_ver2({
-    key = 'permaChips',
-    name = 'Perma Chips',
+    key = 'blackJack',
+    name = 'Blackjack',
     text = {
         "{C:attention}#2#{} random cards in your hand",
         "permanently gain {C:chips}+#5#{} Chips",
         "{C:green}#1# in #4#{} chance to affect {C:attention}#3#{}"
     },
-    pos = { x = 0, y = 2 },
+    pos = { x = 5, y = 0 },
     config = {
         smallUpgrade = 3,
         bigUpgrade = 5,
@@ -575,7 +575,7 @@ create_gamble_card({
     text = {
         "After {C:attention}#2#{} round",
         "gain {C:attention}2{} {C:planet}Planet{} cards for",
-        "last played hand{C:inactive}(#5#){}",
+        "last played hand{C:inactive} [#5#]{}",
         "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
     },
     pos = { x = 4, y = 0 },
@@ -583,7 +583,7 @@ create_gamble_card({
         roundCount = 0,
         maxroundCount = 1,
         maxAmount = 3,
-        currentHand = 'none',
+        currentHand = 'None',
         currentPlanet = '',
     },
     loc_vars = { 'maxAmount', 'currentHand', 'currentPlanet' },
@@ -633,16 +633,16 @@ create_gamble_card({
     end
 })
 
--- perma mult
+-- craps gamble card
 create_gamble_card_ver2({ 
-    key = 'permaMult',
-    name = 'Perma Mult',
+    key = 'craps',
+    name = 'Craps',
     text = {
         "{C:attention}#2#{} random cards in your hand",
         "permanently gain {C:mult}+#5#{} Mult",
         "{C:green}#1# in #4#{} chance to affect {C:attention}#3#{}"
     },
-    pos = { x = 0, y = 2 },
+    pos = { x = 1, y = 2 },
     config = {
         smallUpgrade = 3,
         bigUpgrade = 5,

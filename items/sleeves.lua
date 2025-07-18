@@ -1,6 +1,6 @@
 if CardSleeves then
     SMODS.Atlas{
-        key = 'dogdeckSleeve',
+        key = 'sleeves',
         path = 'sleeves.png',
         px = 73,
         py = 95,
@@ -10,7 +10,7 @@ if CardSleeves then
     local dogsleeve = CardSleeves.Sleeve({
 		key = "dog_deck_sleeve",
 		name = "Dog Sleeve",
-		atlas = "dogdeckSleeve",
+		atlas = "sleeves",
         loc_txt = {
         name = "Dog",
             text={
@@ -67,7 +67,7 @@ if CardSleeves then
     local gamblesleeve = CardSleeves.Sleeve({
 		key = "gamble_deck_sleeve",
 		name = "Gamble Sleeve",
-		atlas = "dogdeckSleeve",
+		atlas = "sleeves",
         loc_txt = {
             name = "Gamble",
             text={
@@ -77,7 +77,7 @@ if CardSleeves then
             },
         },
 		config = { },
-        pos = { x = 0, y = 0 },
+        pos = { x = 1, y = 0 },
 		discovered = true,
         unlocked = true,
 		apply = function(self)
