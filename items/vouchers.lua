@@ -49,7 +49,7 @@ SMODS.Voucher {
         text = {
             "Doubles all {C:attention}listed{}",
             "{C:green,E:1}probabilities{}",
-            "{inactive}(ex:{} {C:green1 in 3{} {C:inactive}->{} {C:green}2 in 3{}{C:inactive}){}"
+            "{inactive}(ex:{} {C:green}1 in 3{} {C:inactive}->{} {C:green}2 in 3{}{C:inactive}){}"
         }
     },
     cost = 10,
@@ -89,6 +89,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
         name = 'Debt',
         text = {
             "Nothing yet again >:)",
+            "aww man :("
         }
     },
     cost = 10,

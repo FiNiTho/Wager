@@ -175,8 +175,8 @@ SMODS.Joker {
     loc_txt = {
         name = 'Jackpot',
         text = {
-                "If {C:attention}hand{} countains {C:attention}three 7's{}",
-                "create a {C:gamble}Gamble{} card",
+                "If {C:attention}played hand{} contains",
+                "{C:attention}three 7's{} create a {C:gamble}Gamble{} card",
                 "{C:inactive}(Must have room){}"}
     },
     atlas = 'jokers',
@@ -246,7 +246,7 @@ SMODS.Joker {
         text = {
                 "{C:green}#1# in #2#{} chance to create",
                 "a {C:gamble}Gamble{} card for each",
-                "{C:attention}Rerole{} in the shop",
+                "{C:attention}Reroll{} in the shop",
                 "{C:inactive}(Must have room){}",
             }
     },

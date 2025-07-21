@@ -260,7 +260,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
         key = 'roulette',
         name = 'Roulette',
         text = {
-            "After {C:attention}#2#{} round create a random Joker",
+            "After {C:attention}#2#{} rounds create a random Joker",
             "{C:green}#3# in #5#{} chance to get {C:cry_epic}epic{}",
             "{C:green}#3# in #4#{} chance to get {C:legendary,E:1}legendary{}",
             "{C:green}#3# in #6#{} chance to get {C:cry_exotic,E:1}exotic{}",
@@ -319,7 +319,7 @@ else-- Normal roulette version
         key = 'roulette',
         name = 'Roulette',
         text = {
-            "After {C:attention}#2#{} round create a random Joker",
+            "After {C:attention}#2#{} rounds create a random Joker",
             "{C:green}#3# in #5#{} chance to get {C:rare}rare{}",
             "{C:green}#3# in #4#{} chance to get {C:legendary,E:1}legendary{}",
             "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"

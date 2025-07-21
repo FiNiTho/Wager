@@ -13,7 +13,8 @@ SMODS.Seal {
         name = 'Auburn Seal',
         text = {
             "Creates a {C:gamble}Gamble{} card",
-            "when only card played",
+            "when played hand only",
+            "contains this card",
             "{C:inactive}(Must have room){}"
         }
     },
