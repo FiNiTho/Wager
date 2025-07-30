@@ -91,7 +91,7 @@ SMODS.Back{
         },
     },
 	
-	config = { vouchers = { "v_finnmod_bet" } },
+	config = { vouchers = { "v_finnmod_bet", "v_retcon" } },
 	pos = { x = 1, y = 0 },
 	order = 1,
 	atlas = "decks",

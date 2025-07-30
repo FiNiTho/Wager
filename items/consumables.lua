@@ -372,7 +372,7 @@ create_gamble_card_ver2({
     key = 'cocktail',
     name = 'Cocktail',
     text = {
-        "{C:green}1 to #2#{} selected cards randomly",
+        "{C:green}1 up to #2#{} selected cards randomly",
         "enhances to {C:attention}Stained{} cards",
     },
     pos = { x = 2, y = 0 },

@@ -81,3 +81,43 @@ SMODS.Tag {
 --         end
 --     end
 -- }
+
+-- food jokers
+if (SMODS.Mods["Cryptid"] or {}).can_load then
+    SMODS.Tag {
+        key = "foodTag",
+        loc_txt = {
+            name = 'Food Tag',
+            text = {
+                "Create up to {C:attention}2{}",
+                "{C:attention}Food{} Jokers",
+                "{C:inactive}(Must have room){}"
+            }
+        },
+        atlas = 'tags',
+        pos = { x = 2, y = 0 },
+        config = { spawn_jokers = 2 },
+        loc_vars = function(self, info_queue, tag)
+            return { vars = { tag.config.spawn_jokers } }
+        end,
+        apply = function(self, tag, context)
+            if context.type == 'immediate' then
+                local lock = tag.ID
+                G.CONTROLLER.locks[lock] = true
+                tag:yep('+', G.C.PURPLE, function()
+                    for _ = 1, tag.config.spawn_jokers do
+                        if G.jokers and #G.jokers.cards < G.jokers.config.card_limit then
+                            local card = create_card("Food", G.jokers, nil, nil, nil, nil, nil, "finnmod_foodTag")
+                            card:add_to_deck()
+                            G.jokers:emplace(card)
+                        end
+                    end
+                    G.CONTROLLER.locks[lock] = nil
+                    return true
+                end)
+                tag.triggered = true
+                return true
+            end
+        end
+    }
+end
