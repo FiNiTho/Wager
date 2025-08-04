@@ -12,7 +12,7 @@ if CardSleeves then
 		name = "Dog Sleeve",
 		atlas = "sleeves",
         loc_txt = {
-        name = "Dog",
+        name = "Dog Sleeve",
             text={
             "Start with {C:attention}5{} {C:attention,T:j_finnmod_dog}dog{} jokers",
             "create another {C:attention,T:j_finnmod_dog}Dog{} Joker",
@@ -69,7 +69,7 @@ if CardSleeves then
 		name = "Gamble Sleeve",
 		atlas = "sleeves",
         loc_txt = {
-            name = "Gamble",
+            name = "Gamble Sleeve",
             text={
             "Start run with",
             "one of the {C:gamble}Gamble{} jokers",
@@ -99,6 +99,27 @@ if CardSleeves then
                     return true
                 end
             }))
+        end,
+	})
+
+    -- consumer sleeve
+    local gamblesleeve = CardSleeves.Sleeve({
+		key = "consumer_deck_sleeve",
+		name = "Consumer Sleeve",
+		atlas = "sleeves",
+        loc_txt = {
+            name = "Consumer Sleeve",
+            text={
+            "Start run with {C:attention}1{} extra",
+            "{C:attention}booster pack{} in each shop",
+            },
+        },
+		config = { },
+        pos = { x = 2, y = 0 },
+		discovered = true,
+        unlocked = true,
+		apply = function(self)
+            G.GAME.modifiers.extra_boosters = (G.GAME.modifiers.extra_boosters or 0) + 1
         end,
 	})
 end

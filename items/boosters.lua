@@ -28,7 +28,7 @@ SMODS.Booster {
 
     loc_vars = function(self, info_queue, card)
         return { 
-                vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble },
+                vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble2 },
             }
     end,
 
@@ -37,8 +37,8 @@ SMODS.Booster {
 	end,
 
     ease_background_colour = function(self)
-        ease_colour(G.C.DYN_UI.MAIN, G.C.SET.gamble)
-        ease_background_colour({ new_colour = G.C.SET.gamble, special_colour = G.C.SET.gamble, contrast = 3 })
+        ease_colour(G.C.DYN_UI.MAIN, G.C.SET.gamble2)
+        ease_background_colour({ new_colour = G.C.SET.gamble2, special_colour = HEX("1a4f3e"), contrast = 3 })
     end
 }
 
@@ -65,7 +65,7 @@ SMODS.Booster {
 
     loc_vars = function(self, info_queue, card)
         return { 
-                vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble },
+                vars = { card.ability.choose, card.ability.extra, colours = G.C.SET.gamble2 },
             }
     end,
 
@@ -74,8 +74,8 @@ SMODS.Booster {
 	end,
 
     ease_background_colour = function(self)
-        ease_colour(G.C.DYN_UI.MAIN, G.C.SET.gamble)
-        ease_background_colour({ new_colour = G.C.SET.gamble, special_colour = G.C.SET.gamble, contrast = 3 })
+        ease_colour(G.C.DYN_UI.MAIN, G.C.SET.gamble2)
+        ease_background_colour({ new_colour = G.C.SET.gamble2, special_colour = HEX("1a4f3e"), contrast = 3 })
     end
 }
 
@@ -112,7 +112,7 @@ SMODS.Booster {
 
     ease_background_colour = function(self)
         ease_colour(G.C.DYN_UI.MAIN, G.C.SET.gamble)
-        ease_background_colour({ new_colour = G.C.SET.gamble, special_colour = G.C.SET.gamble2, contrast = 3 })
+        ease_background_colour({ new_colour = G.C.SET.gamble, special_colour = HEX("4c2f1d"), contrast = 3 })
     end
 }
 

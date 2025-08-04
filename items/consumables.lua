@@ -199,7 +199,7 @@ SMODS.Consumable {
     pos = { x = 0, y = 0 },
     config = { extra = {
             odds = 2,
-            currentAmount = 5,
+            currentAmount = 10,
             gainAmount = 5,
             maxAmount = 35,
         },     
@@ -382,12 +382,12 @@ create_gamble_card_ver2({
     info1 = 'm_finnmod_stained',
     loc_vars = { 'maxAmount' },
     effect = function(card)
-        local max_seals = card.ability.extra.maxAmount or 3
+        local max_selected = card.ability.extra.maxAmount or 3
         local highlighted = G.hand.highlighted
-        local seal_count = math.min(#highlighted, max_seals)
-        local amount_to_seal = math.random(1, seal_count)
+        local selected_count = math.min(#highlighted, max_selected)
+        local amount_to_selected = math.random(1, selected_count)
 
-        -- Make a shallow copy and shuffle it
+        -- make a shallow copy and shuffle it
         local shuffled = {}
         for _, v in ipairs(highlighted) do table.insert(shuffled, v) end
         for i = #shuffled, 2, -1 do
@@ -395,41 +395,82 @@ create_gamble_card_ver2({
             shuffled[i], shuffled[j] = shuffled[j], shuffled[i]
         end
 
-        if amount_to_seal == 3 then
+        if amount_to_selected == 3 then
             play_sound("finnmod_gambleMiddleWin")
             G.GAME.pool_flags.gambleWin = true
         end
 
-        for i = 1, amount_to_seal do
+        -- effect for the gamble card itself
+        G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.4,
+            func = function()
+                play_sound('tarot1')
+                card:juice_up(0.3, 0.5)
+                return true
+            end
+        }))
+
+        for i = 1, amount_to_selected do
+            local percent = 1.15 - (i - 0.999) / (#G.hand.highlighted - 0.998) * 0.3
             local selected = shuffled[i]
+
+            -- first flip each card
             G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.15,
                 func = function()
-                    play_sound("tarot1")
-                    selected:juice_up(0.3, 0.5)
+                    selected:flip()
+                    play_sound("card1", percent)
+                    selected:juice_up(0.3, 0.3)
                     return true
                 end,
             }))
+        end
+        delay(0.2)
+
+        for i = 1, amount_to_selected do
+            local selected = shuffled[i]
+
+            -- change the ability while it's "face-down"
             G.E_MANAGER:add_event(Event({
                 trigger = "after",
                 delay = 0.1,
                 func = function()
-                    if selected then
-                        selected:set_ability("m_finnmod_stained")
-                    end
+                    selected:set_ability("m_finnmod_stained")
                     return true
                 end,
             }))
+        end
+
+        for i = 1, amount_to_selected do
+            local percent = 0.85 + (i - 0.999) / (#G.hand.highlighted - 0.998) * 0.3
+            local selected = shuffled[i]
+
+            -- Flip back to show the new ability
+            G.E_MANAGER:add_event(Event({
+                trigger = "after",
+                delay = 0.15,
+                func = function()
+                    selected:flip()
+                    play_sound('tarot2', percent, 0.6)
+                    selected:juice_up(0.3, 0.3)
+                    return true
+                end,
+            }))
+
         end
 
         -- Unhighlight all afterwards
         G.E_MANAGER:add_event(Event({
             trigger = "after",
-            delay = 0.5,
+            delay = 0.2,
             func = function()
                 G.hand:unhighlight_all()
                 return true
             end,
         }))
+        delay(0.5)
     end,
 
     can_use_addons = function(card)
@@ -642,7 +683,7 @@ create_gamble_card_ver2({
         "permanently gain {C:mult}+#5#{} Mult",
         "{C:green}#1# in #4#{} chance to affect {C:attention}#3#{}"
     },
-    pos = { x = 1, y = 2 },
+    pos = { x = 6, y = 0 },
     config = {
         smallUpgrade = 3,
         bigUpgrade = 5,
@@ -704,58 +745,58 @@ create_gamble_card_ver2({
     end
 })
 
--- misc cryptid stuff gamble card
-if (SMODS.Mods["Cryptid"] or {}).can_load then
-    create_gamble_card({
-        key = 'cryptid',
-        name = 'Cryptid Shit',
-        text = {
-            "After {C:attention}#2# rounds{} it has a",
-            "{C:green}#4#%{} chance to get {C:cry_cursed}cursed{}",
-            "{C:green}#5#%{} chance to get {C:cry_meme}meme{}",
-            "{C:green}#6#%{} chance to get {C:cry_candy}candy{}",
-            "{C:green}#7#%{} chance to get {C:cry_m}m{}",
-            "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
-        },
-        pos = { x = 4, y = 0 },
-        config = {
-            roundCount = 0,
-            maxroundCount = 2, 
-            odds = 100,
-            cursedOdds = 10,
-            memedOdds = 15,
-            candyOdds = 35,
-            mOdds = 40,
-        },
-        loc_vars = {'odds', 'cursedOdds', 'memedOdds', 'candyOdds', 'mOdds'},
-        effect = function(card)
-            if #G.jokers.cards < G.jokers.config.card_limit then
-                local number = math.random(card.ability.extra.odds)
-                if number <= card.ability.extra.cursedOdds then
-                    local card = create_card("Joker", G.jokers, nil, "cry_cursed", nil, nil, nil)
-                    card:add_to_deck()
-                    card:start_materialize()
-                    G.jokers:emplace(card)
-                elseif number <= card.ability.extra.cursedOdds + card.ability.extra.memedOdds then
-                    local new_card = create_card("Meme", G.jokers, nil, nil, nil, nil)
-                    new_card:add_to_deck()
-                    card:start_materialize()
-                    G.jokers:emplace(new_card)
-                elseif number <= card.ability.extra.cursedOdds + card.ability.extra.memedOdds + card.ability.extra.candyOdds then
-                    local new_card = create_card("Joker", G.jokers, nil, "cry_candy", nil, nil)
-                    new_card:add_to_deck()
-                    card:start_materialize()
-                    G.jokers:emplace(new_card)
-                else
-                    local new_card = create_card("M", G.jokers, nil, nil, nil, nil)
-                    new_card:add_to_deck()
-                    card:start_materialize()
-                    G.jokers:emplace(new_card)
-                end
-            end
-        end
-    })
-end
+-- -- misc cryptid stuff gamble card
+-- if (SMODS.Mods["Cryptid"] or {}).can_load then
+--     create_gamble_card({
+--         key = 'cryptid',
+--         name = 'Cryptid Shit',
+--         text = {
+--             "After {C:attention}#2# rounds{} it has a",
+--             "{C:green}#4#%{} chance to get {C:cry_cursed}cursed{}",
+--             "{C:green}#5#%{} chance to get {C:cry_meme}meme{}",
+--             "{C:green}#6#%{} chance to get {C:cry_candy}candy{}",
+--             "{C:green}#7#%{} chance to get {C:cry_m}m{}",
+--             "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive} of #2#){}"
+--         },
+--         pos = { x = 4, y = 0 },
+--         config = {
+--             roundCount = 0,
+--             maxroundCount = 2, 
+--             odds = 100,
+--             cursedOdds = 10,
+--             memedOdds = 15,
+--             candyOdds = 35,
+--             mOdds = 40,
+--         },
+--         loc_vars = {'odds', 'cursedOdds', 'memedOdds', 'candyOdds', 'mOdds'},
+--         effect = function(card)
+--             if #G.jokers.cards < G.jokers.config.card_limit then
+--                 local number = math.random(card.ability.extra.odds)
+--                 if number <= card.ability.extra.cursedOdds then
+--                     local card = create_card("Joker", G.jokers, nil, "cry_cursed", nil, nil, nil)
+--                     card:add_to_deck()
+--                     card:start_materialize()
+--                     G.jokers:emplace(card)
+--                 elseif number <= card.ability.extra.cursedOdds + card.ability.extra.memedOdds then
+--                     local new_card = create_card("Meme", G.jokers, nil, nil, nil, nil)
+--                     new_card:add_to_deck()
+--                     card:start_materialize()
+--                     G.jokers:emplace(new_card)
+--                 elseif number <= card.ability.extra.cursedOdds + card.ability.extra.memedOdds + card.ability.extra.candyOdds then
+--                     local new_card = create_card("Joker", G.jokers, nil, "cry_candy", nil, nil)
+--                     new_card:add_to_deck()
+--                     card:start_materialize()
+--                     G.jokers:emplace(new_card)
+--                 else
+--                     local new_card = create_card("M", G.jokers, nil, nil, nil, nil)
+--                     new_card:add_to_deck()
+--                     card:start_materialize()
+--                     G.jokers:emplace(new_card)
+--                 end
+--             end
+--         end
+--     })
+-- end
 
 -- {spectral cards}
 -- gamble seal

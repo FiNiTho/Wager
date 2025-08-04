@@ -9,10 +9,10 @@ SMODS.Atlas{
 SMODS.Back{
     key = "dog_deck",
     loc_txt = {
-        name = "Dog",
+        name = "Dog Deck",
         text={
         "Start with {C:attention}5{} {C:attention,T:j_finnmod_dog}dog{} jokers",
-        "create another {C:attention,T:j_finnmod_dog}Dog{} Joker",
+        "create another {C:attention}Dog{} Joker",
         "when boss blind is defeated",
         "{C:inactive}(must have room){}"
         },
@@ -79,24 +79,20 @@ SMODS.Back{
 SMODS.Back{
     key = "gamble_deck",
     loc_txt = {
-        name = "Gamble",
+        name = "Gamble Deck",
         text={
         "Start run with",
         "one of the {C:gamble}Gamble{} jokers",
         "and the {C:gamble,T:v_finnmod_bet}Bet{} voucher",
         },
-        unlock = {
-        "Unlock by exploding the",
-        "{C:attention}Dog{} Joker."
-        },
     },
 	
-	config = { vouchers = { "v_finnmod_bet", "v_retcon" } },
+	config = { vouchers = { "v_finnmod_bet" } },
 	pos = { x = 1, y = 0 },
 	order = 1,
 	atlas = "decks",
-    discovered = false,
-    unlocked = false,
+    discovered = true,
+    unlocked = true,
 
 	apply = function(self)
         G.E_MANAGER:add_event(Event({
@@ -116,5 +112,30 @@ SMODS.Back{
         if G.GAME.pool_flags and G.GAME.pool_flags.dog_exploded then
             unlock_card(self)
         end
+    end,
+}
+
+-- consumer deck
+SMODS.Back{
+    key = "consumer_deck",
+    loc_txt = {
+        name = "Consumer Deck",
+        text={
+        "Start run with {C:attention,T:v_overstock_norm}Overstock{}",
+        "and {C:attention}1{} extra {C:attention}booster pack{}",
+        "in each shop",
+        },
+    },
+	
+	-- config = { vouchers = { "v_overstock_norm", "v_overstock_plus" } },
+    config = { vouchers = { "v_overstock_norm" } },
+	pos = { x = 2, y = 0 },
+	order = 1,
+	atlas = "decks",
+    discovered = true,
+    unlocked = true,
+
+	apply = function(self)
+        G.GAME.modifiers.extra_boosters = (G.GAME.modifiers.extra_boosters or 0) + 1
     end,
 }
