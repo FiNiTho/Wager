@@ -81,38 +81,38 @@ SMODS.Voucher {
     end
 }
 
--- debt voucher
-if (SMODS.Mods["Cryptid"] or {}).can_load then
-    SMODS.Voucher {
-    key = 'debt',
-    loc_txt = {
-        name = 'Debt',
-        text = {
-            "Nothing yet again >:)",
-            "aww man :("
-        }
-    },
-    cost = 10,
-    unlocked = true,
-    available = true,
-    requires = {'v_finnmod_gamble', 'v_finnmod_gamble2'},
+-- -- debt voucher
+-- if (SMODS.Mods["Cryptid"] or {}).can_load then
+--     SMODS.Voucher {
+--     key = 'debt',
+--     loc_txt = {
+--         name = 'Debt',
+--         text = {
+--             "Nothing yet again >:)",
+--             "aww man :("
+--         }
+--     },
+--     cost = 10,
+--     unlocked = true,
+--     available = true,
+--     requires = {'v_finnmod_gamble', 'v_finnmod_gamble2'},
 
-    atlas = 'vouchers', 
-    pos = { x = 2, y = 0 },
+--     atlas = 'vouchers', 
+--     pos = { x = 2, y = 0 },
 
-    pools = { },
+--     pools = { },
 
-    config = {
-        extra = { }
-    },
+--     config = {
+--         extra = { }
+--     },
 
-    redeem = function(self, card)
-        G.E_MANAGER:add_event(Event({
-            func = function()
-                return true
-            end
-        }))
-        G.GAME.pool_flags.gamble3_redeemed = true
-    end
-    } 
-end
+--     redeem = function(self, card)
+--         G.E_MANAGER:add_event(Event({
+--             func = function()
+--                 return true
+--             end
+--         }))
+--         G.GAME.pool_flags.gamble3_redeemed = true
+--     end
+--     } 
+-- end

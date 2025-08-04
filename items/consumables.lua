@@ -16,12 +16,28 @@ SMODS.ConsumableType {
     loc_txt = {
         name = "Gamble",
         collection = "Gamble Cards",
+        
+        undiscovered = {
+            name = "Not Discovered",
+            text = {
+                "Purchase or use",
+                "this card in an",
+                "unseeded run to",
+                "learn what it does",
+            },
+        },
     },
     primary_colour = G.C.SET.gamble2,
     secondary_colour = G.C.SET.gamble,
     collection_rows = { 3, 4 },
     shop_rate = 0.0,
     default = "c_finnmod_wager",
+}
+
+SMODS.UndiscoveredSprite{
+    key = "Gamble",
+    atlas = "consumables",
+    pos = { x = 1, y = 2 },
 }
 
 -- Base gamble card template
