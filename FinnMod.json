@@ -1,13 +1,13 @@
 {
-    "id": "Finnmod",
-    "name": "Finnmod",
+    "id": "wager",
+    "name": "Wager",
     "author": ["FiNiTho"],
     "description": "Adds some random stuff.",
-    "prefix": "finnmod",
+    "prefix": "wager",
     "main_file": "core.lua",
     "badge_colour": "b467de",
 	"badge_text_colour": "FFFFFF",
-    "version": "0.9.6",
+    "version": "0.9.75",
     "dependencies": [
         "Steamodded (>=1.0.0~ALPHA-1225a)"
     ],

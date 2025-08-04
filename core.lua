@@ -1,9 +1,9 @@
 --- STEAMODDED HEADER
---- MOD_NAME: Finnmod
---- MOD_ID: Finnmod
+--- MOD_NAME: wager
+--- MOD_ID: wager
 --- MOD_AUTHOR: FiNiTho
 --- MOD_DESCRIPTION: Adds some random stuff.
---- PREFIX: finnmod
+--- PREFIX: wager
 ----------------------------------------------------------
 ----------- MOD CODE -------------------------------------
 
@@ -13,13 +13,13 @@
 -- cryptid
 -- for helping me understand how to do things with SMODS
 
-if not Finnmod then
-	Finnmod = {}
+if not wager then
+	wager = {}
 end
 
 local mod_path = "" .. SMODS.current_mod.path
-Finnmod.path = mod_path
-Finnmod_config = SMODS.current_mod.config
+wager.path = mod_path
+wager_config = SMODS.current_mod.config
 
 
 -- COLOURS
@@ -32,10 +32,10 @@ SMODS.current_mod.optional_features = {
 	post_trigger = true,
 }
 
--- Finnmod joker pool
+-- wager joker pool
 SMODS.ObjectType({
-	key = "finnmodJokers",
-	default = "j_finnmod_dog",
+	key = "wagerJokers",
+	default = "j_wager_dog",
 	cards = {},
 	inject = function(self)
 		SMODS.ObjectType.inject(self)
@@ -45,7 +45,7 @@ SMODS.ObjectType({
 -- gamble joker pool
 SMODS.ObjectType({
 	key = "gambleJoker",
-	default = "j_finnmod_gamble",
+	default = "j_wager_gamble",
 	cards = {},
 	inject = function(self)
 		SMODS.ObjectType.inject(self)
@@ -55,10 +55,10 @@ SMODS.ObjectType({
 --Load item files
 local files = NFS.getDirectoryItems(mod_path .. "items")
 for _, file in ipairs(files) do
-	print("[FINNMOD] Loading lua file " .. file)
+	print("[wager] Loading lua file " .. file)
 	local f, err = SMODS.load_file("items/" .. file)
 	if err then
-    	error("[FINNMOD] Error loading " .. file .. ": " .. err)
+    	error("[wager] Error loading " .. file .. ": " .. err)
 	end
 	f()
 end
@@ -66,7 +66,7 @@ end
 --Load lib files
 local files = NFS.getDirectoryItems(mod_path .. "lib/")
 for _, file in ipairs(files) do
-	print("[FINNMOD] Loading lib file " .. file)
+	print("[wager] Loading lib file " .. file)
 	local f, err = SMODS.load_file("lib/" .. file)
 	if err then
 		error(err) 

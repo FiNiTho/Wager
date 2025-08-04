@@ -24,7 +24,7 @@ SMODS.Joker {
     atlas = 'jokers',
     rarity = 2,
     cost = 6,
-    pools = {["finnmodJokers"] = true},
+    pools = {["wagerJokers"] = true},
 
     unlocked = true,
     discovered = false,
@@ -78,12 +78,12 @@ SMODS.Joker {
 					end
 				}))
 				return {
-                    sound = 'finnmod_arfBoom',
+                    sound = 'wager_arfBoom',
 					message = 'arf, BOOM!'
 				}
 			else
 				return {
-                    sound = 'finnmod_arf',
+                    sound = 'wager_arf',
                     message = 'arf'
 				}
 			end
@@ -105,7 +105,7 @@ SMODS.Joker {
     atlas = 'jokers',
     rarity = 3,
     cost = 8,
-    pools = {["finnmodJokers"] = true},
+    pools = {["wagerJokers"] = true},
 
     unlocked = true,
     discovered = false,
@@ -182,7 +182,7 @@ SMODS.Joker {
     atlas = 'jokers',
     rarity = 2,
     cost = 4,
-    pools = {["finnmodJokers"] = true, ["gambleJoker"] = true},
+    pools = {["wagerJokers"] = true, ["gambleJoker"] = true},
 
     unlocked = true,
     discovered = false,
@@ -253,7 +253,7 @@ SMODS.Joker {
     atlas = 'jokers',
     rarity = 2,
     cost = 4,
-    pools = {["finnmodJokers"] = true, ["gambleJoker"] = true},
+    pools = {["wagerJokers"] = true, ["gambleJoker"] = true},
 
     unlocked = true,
     discovered = false,
@@ -316,7 +316,7 @@ else
         pos = {x = 4, y = 0},
         rarity = 2,
         cost = 6,
-        pools = {["finnmodJokers"] = true},
+        pools = {["wagerJokers"] = true},
 
         unlocked = true,
         discovered = false,
@@ -383,7 +383,7 @@ SMODS.Joker {
     pos = {x = 5, y = 1},
     rarity = 3,
     cost = 8,
-    pools = {["finnmodJokers"] = true},
+    pools = {["wagerJokers"] = true},
 
     unlocked = true,
     discovered = false,
@@ -426,7 +426,7 @@ SMODS.Joker {
     pos = {x = 6, y = 0},
     rarity = 2,
     cost = 6,
-    pools = {["finnmodJokers"] = true, ["Food"] = true},
+    pools = {["wagerJokers"] = true, ["Food"] = true},
 
     unlocked = true,
     discovered = false,
@@ -517,7 +517,7 @@ SMODS.Joker {
     pos = {x = 6, y = 1},
     rarity = 2,
     cost = 6,
-    pools = {["finnmodJokers"] = true, ["Food"] = true},
+    pools = {["wagerJokers"] = true, ["Food"] = true},
 
     unlocked = true,
     discovered = false,
@@ -609,7 +609,7 @@ SMODS.Joker {
     pos = {x = 5, y = 0},
     rarity = 2,
     cost = 6,
-    pools = {["finnmodJokers"] = true, ["Food"] = true},
+    pools = {["wagerJokers"] = true, ["Food"] = true},
 
     unlocked = true,
     discovered = false,
@@ -684,7 +684,7 @@ SMODS.Joker {
     soul_pos = { x = 4, y = 1 },
     rarity = 4,
     cost = 20,
-    pools = {["finnmodJokers"] = true},
+    pools = {["wagerJokers"] = true},
 
     unlocked = false,
     discovered = false,

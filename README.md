@@ -1,4 +1,4 @@
-# Finnmod
+# wager
 balatro mod
 <br>
 hi

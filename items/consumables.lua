@@ -31,7 +31,7 @@ SMODS.ConsumableType {
     secondary_colour = G.C.SET.gamble,
     collection_rows = { 3, 4 },
     shop_rate = 0.0,
-    default = "c_finnmod_wager",
+    default = "c_wager_wager",
 }
 
 SMODS.UndiscoveredSprite{
@@ -134,7 +134,7 @@ local function create_gamble_card(params)
 
                 return {}
             else
-                local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_finnmod_"..params.key)
+                local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_wager_"..params.key)
                 new_card:start_materialize()
                 new_card:add_to_deck()
                 G.consumeables:emplace(new_card)
@@ -240,7 +240,7 @@ SMODS.Consumable {
 
     use = function(self, card, area)
         if G.GAME.gamble_shared.currentAmount < card.ability.extra.maxAmount and pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.odds then
-            play_sound("finnmod_gambleMiddleWin")
+            play_sound("wager_gambleMiddleWin")
             G.GAME.pool_flags.gambleWin = true
 
             attention_text({
@@ -296,21 +296,21 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
                 G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
                     play_sound("tarot1")
                     if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.exoticOdds then
-                        play_sound("finnmod_gambleWin")
+                        play_sound("wager_gambleWin")
                         G.GAME.pool_flags.gambleWin = true
 
                         local new_card = create_card("Joker", G.jokers, nil, "cry_exotic", nil, nil)
                         new_card:add_to_deck()
                         G.jokers:emplace(new_card)
                     elseif pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.legendaryOdds then
-                        play_sound("finnmod_gambleMiddleWin")
+                        play_sound("wager_gambleMiddleWin")
                         G.GAME.pool_flags.gambleWin = true
 
                         local new_card = create_card("Joker", G.jokers, true, nil, nil, nil)
                         new_card:add_to_deck()
                         G.jokers:emplace(new_card)
                     elseif pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.epicOdds then
-                        play_sound("finnmod_gambleSmallWin")
+                        play_sound("wager_gambleSmallWin")
                         G.GAME.pool_flags.gambleWin = true
 
                         local new_card = create_card("Joker", G.jokers, nil, "cry_epic", nil, nil)
@@ -353,14 +353,14 @@ else-- Normal roulette version
                 G.E_MANAGER:add_event(Event({trigger = 'after', delay = 0.4, func = function()
                     play_sound("tarot1")
                     if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.legendaryOdds then
-                        play_sound("finnmod_gambleWin")
+                        play_sound("wager_gambleWin")
                         G.GAME.pool_flags.gambleWin = true
 
                         local new_card = create_card("Joker", G.jokers, true, nil, nil, nil)
                         new_card:add_to_deck()
                         G.jokers:emplace(new_card)
                     elseif pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.rareOdds then
-                        play_sound("finnmod_gambleSmallWin")
+                        play_sound("wager_gambleSmallWin")
                         G.GAME.pool_flags.gambleWin = true
 
                         local new_card = create_card("Joker", G.jokers, nil, 1, nil, nil)
@@ -395,7 +395,7 @@ create_gamble_card_ver2({
     config = {
         maxAmount = 3,
     },
-    info1 = 'm_finnmod_stained',
+    info1 = 'm_wager_stained',
     loc_vars = { 'maxAmount' },
     effect = function(card)
         local max_selected = card.ability.extra.maxAmount or 3
@@ -412,7 +412,7 @@ create_gamble_card_ver2({
         end
 
         if amount_to_selected == 3 then
-            play_sound("finnmod_gambleMiddleWin")
+            play_sound("wager_gambleMiddleWin")
             G.GAME.pool_flags.gambleWin = true
         end
 
@@ -453,7 +453,7 @@ create_gamble_card_ver2({
                 trigger = "after",
                 delay = 0.1,
                 func = function()
-                    selected:set_ability("m_finnmod_stained")
+                    selected:set_ability("m_wager_stained")
                     return true
                 end,
             }))
@@ -530,7 +530,7 @@ create_gamble_card({
                 trigger = 'after',
                 delay = 0.4,
                 func = function()
-                    local edition = poll_edition('finnmod_slots', nil, true, true,
+                    local edition = poll_edition('wager_slots', nil, true, true,
                         { 'e_polychrome', 'e_holo', 'e_foil' })
                     local selected_card = pseudorandom_element(eligibleJokers)
                     selected_card:set_edition(edition, true)
@@ -588,7 +588,7 @@ create_gamble_card_ver2({
         pseudoshuffle(temp_hand, math.random(1000))
 
         if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.bigUpgradeOdds then
-            play_sound("finnmod_gambleWin")
+            play_sound("wager_gambleWin")
             G.GAME.pool_flags.gambleWin = true
             for i = 1, card.ability.extra.bigUpgrade do
                 upgraded_cards[#upgraded_cards + 1] = temp_hand[i]
@@ -724,7 +724,7 @@ create_gamble_card_ver2({
         pseudoshuffle(temp_hand, math.random(1000))
 
         if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.bigUpgradeOdds then
-            play_sound("finnmod_gambleWin")
+            play_sound("wager_gambleWin")
             G.GAME.pool_flags.gambleWin = true
             for i = 1, card.ability.extra.bigUpgrade do
                 upgraded_cards[#upgraded_cards + 1] = temp_hand[i]
@@ -834,7 +834,7 @@ SMODS.Consumable {
     pos = { x = 0, y = 1 },
     config = { 
             max_highlighted = 1,
-            extra = 'finnmod_auburnSeal', },
+            extra = 'wager_auburnSeal', },
 
     check_for_unlock = function(self, args)
         unlock_card(self)
@@ -860,7 +860,7 @@ SMODS.Consumable {
 				delay = 0.1,
 				func = function()
 					if highlighted then
-						highlighted:set_seal("finnmod_auburnSeal")
+						highlighted:set_seal("wager_auburnSeal")
 					end
 					return true
 				end,

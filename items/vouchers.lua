@@ -18,7 +18,7 @@ SMODS.Voucher {
     cost = 10,
     unlocked = true,
     available = true,
-    -- requires = 'v_finnmod_gamble'
+    -- requires = 'v_wager_gamble'
 
     atlas = 'vouchers', 
     pos = { x = 0, y = 0 },
@@ -55,7 +55,7 @@ SMODS.Voucher {
     cost = 10,
     unlocked = true,
     available = true,
-    requires = {'v_finnmod_gamble'},
+    requires = {'v_wager_gamble'},
 
     atlas = 'vouchers', 
     pos = { x = 1, y = 0 },
@@ -95,7 +95,7 @@ SMODS.Voucher {
 --     cost = 10,
 --     unlocked = true,
 --     available = true,
---     requires = {'v_finnmod_gamble', 'v_finnmod_gamble2'},
+--     requires = {'v_wager_gamble', 'v_wager_gamble2'},
 
 --     atlas = 'vouchers', 
 --     pos = { x = 2, y = 0 },

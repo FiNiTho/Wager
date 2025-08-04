@@ -19,14 +19,14 @@ SMODS.Tag {
     atlas = 'tags',
     pos = { x = 0, y = 0 },
     loc_vars = function(self, info_queue, tag)
-        info_queue[#info_queue + 1] = G.P_CENTERS.p_finnmod_gambleMega
+        info_queue[#info_queue + 1] = G.P_CENTERS.p_wager_gambleMega
     end,
     apply = function(self, tag, context)
         if context.type == 'new_blind_choice' then
             local lock = tag.ID
             G.CONTROLLER.locks[lock] = true
             tag:yep('+', G.C.GAMBLE, function()
-                local booster = SMODS.create_card { key = 'p_finnmod_gambleMega', area = G.play }
+                local booster = SMODS.create_card { key = 'p_wager_gambleMega', area = G.play }
                 booster.T.x = G.play.T.x + G.play.T.w / 2 - G.CARD_W * 1.27 / 2
                 booster.T.y = G.play.T.y + G.play.T.h / 2 - G.CARD_H * 1.27 / 2
                 booster.T.w = G.CARD_W * 1.27
@@ -94,7 +94,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
                 tag:yep('+', G.C.PURPLE, function()
                     for _ = 1, tag.config.spawn_jokers do
                         if G.jokers and #G.jokers.cards < G.jokers.config.card_limit then
-                            local card = create_card("Food", G.jokers, nil, nil, nil, nil, nil, "finnmod_foodTag")
+                            local card = create_card("Food", G.jokers, nil, nil, nil, nil, nil, "wager_foodTag")
                             card:add_to_deck()
                             G.jokers:emplace(card)
                         end

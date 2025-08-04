@@ -14,8 +14,8 @@ if CardSleeves then
         loc_txt = {
         name = "Dog Sleeve",
             text={
-            "Start with {C:attention}5{} {C:attention,T:j_finnmod_dog}dog{} jokers",
-            "create another {C:attention,T:j_finnmod_dog}Dog{} Joker",
+            "Start with {C:attention}5{} {C:attention,T:j_wager_dog}dog{} jokers",
+            "create another {C:attention,T:j_wager_dog}Dog{} Joker",
             "when boss blind is defeated",
             "{C:inactive}(must have room){}"
             },
@@ -30,7 +30,7 @@ if CardSleeves then
                     -- Add 5 jokers at apply-time if consumeables exist
                     if G.consumeables then
                         for i = 1, 5 do
-                            local card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_finnmod_dog", "finnmod_deck")
+                            local card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_wager_dog", "wager_deck")
                             -- card:set_edition("e_negative", true)
                             card:add_to_deck()
                             G.jokers:emplace(card)
@@ -51,7 +51,7 @@ if CardSleeves then
                 G.E_MANAGER:add_event(Event({
                     func = function()
                         if #G.jokers.cards < G.jokers.config.card_limit then
-                            local card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_finnmod_dog", "finnmod_deck")
+                            local card = create_card("Joker", G.jokers, nil, nil, nil, nil, "j_wager_dog", "wager_deck")
                             card:add_to_deck()
                             G.jokers:emplace(card)
                         end
