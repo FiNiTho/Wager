@@ -13,8 +13,8 @@ SMODS.Seal {
         name = 'Auburn Seal',
         text = {
             "Creates a {C:gamble}Gamble{} card",
-            "when played hand only",
-            "contains this card",
+            "when played in first hand",
+            "of round",
             "{C:inactive}(Must have room){}"
         }
     },
@@ -23,8 +23,9 @@ SMODS.Seal {
     discovered = true,
 
     calculate = function(self, card, context)
-        if context.before and #context.full_hand == 1 then
-            if #G.consumeables.cards < G.consumeables.config.card_limit then
+        if G.GAME.current_round.hands_played == 0 and context.main_scoring and context.cardarea == G.play then
+            if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
                 card_eval_status_text(card, "extra", nil, nil, nil, {
                     message = "+1 Gamble card",
                     colour = G.C.SET.gamble
@@ -34,8 +35,8 @@ SMODS.Seal {
                     trigger = "after",
                     delay = 0.2,
                     func = function()
-                        local new_card = create_card("Gamble", G.consumeables, nil, nil, true, true, nil)
-                        G.consumeables:emplace(new_card)
+                        SMODS.add_card({ set = 'Gamble' })
+                        G.GAME.consumeable_buffer = G.GAME.consumeable_buffer - 1
                         return true
                     end
                 }))

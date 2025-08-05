@@ -223,9 +223,8 @@ SMODS.Joker {
                         trigger = "after",
                         delay = 0.2,
                         func = function()
-                            local new_card = create_card("Gamble", G.consumeables, nil, nil, true, true, nil)
+                            SMODS.add_card({ set = 'Gamble' })
                             new_card.ability.extra.created_by_jackpot = true
-                            G.consumeables:emplace(new_card)
                             return true
                         end
                     }))
@@ -286,8 +285,7 @@ SMODS.Joker {
                         trigger = "after",
                         delay = 0.2,
                         func = function()
-                            local new_card = create_card("Gamble", G.consumeables, nil, nil, true, true, nil)
-                            G.consumeables:emplace(new_card)
+                            SMODS.add_card({ set = 'Gamble' })
                             G.GAME.consumeable_buffer = G.GAME.consumeable_buffer - 1
                             return true
                         end
@@ -691,7 +689,7 @@ SMODS.Joker {
     config = {  },
 
     loc_vars = function(self, info_queue, card)
-        local suit = (G.GAME.current_round.vremade_ancient_card or {}).suit or 'Spades'
+        local suit = (G.GAME.current_round.vremade_prism_card or {}).suit or 'Spades'
         return { vars = { localize(suit, 'suits_singular'), colours = { G.C.SUITS[suit] } } }
     end,
 
@@ -720,7 +718,7 @@ SMODS.Joker {
                     trigger = "after",
                     delay = 0.1,
                     func = function()
-                        SMODS.change_base(G.play.cards[i], G.GAME.current_round.vremade_ancient_card.suit)
+                        SMODS.change_base(G.play.cards[i], G.GAME.current_round.vremade_prism_card.suit)
                         return true
                     end,
                 }))
@@ -745,18 +743,98 @@ SMODS.Joker {
     end,
 }
 
---- This changes vremade_ancient_card every round so every instance of Ancient Joker shares the same card.
+--- This changes vremade_prism_card every round so every instance of prism Joker shares the same card.
 --- You could replace this with a context.end_of_round reset instead if you want the variables to be local.
 --- See SMODS.current_mod.reset_game_globals at the bottom of this file for when this function is called.
-local function reset_vremade_ancient_card()
-    G.GAME.current_round.vremade_ancient_card = G.GAME.current_round.vremade_ancient_card or { suit = 'Spades' }
-    local ancient_suits = {}
+local function reset_vremade_prism_card()
+    G.GAME.current_round.vremade_prism_card = G.GAME.current_round.vremade_prism_card or { suit = 'Spades' }
+    local prism_suits = {}
     for k, v in ipairs({ 'Spades', 'Hearts', 'Clubs', 'Diamonds' }) do
-        if v ~= G.GAME.current_round.vremade_ancient_card.suit then ancient_suits[#ancient_suits + 1] = v end
+        if v ~= G.GAME.current_round.vremade_prism_card.suit then prism_suits[#prism_suits + 1] = v end
     end
-    local ancient_card = pseudorandom_element(ancient_suits, 'vremade_ancient' .. G.GAME.round_resets.ante)
-    G.GAME.current_round.vremade_ancient_card.suit = ancient_card
+    local prism_card = pseudorandom_element(prism_suits, 'vremade_prism' .. G.GAME.round_resets.ante)
+    G.GAME.current_round.vremade_prism_card.suit = prism_card
 end
+
+-- Stanley
+SMODS.Joker {
+    key = 'stanley',
+    loc_txt = {
+        name = 'Stanley',
+        text = {
+                "Copies the ability of",
+                "the {C:attention}joker{} to the {C:attention}#2#{}",
+                "{s:0.8}Side changes every round{}",
+            }
+    },
+    atlas = 'jokers',
+    pos = {x = 0, y = 1},
+    rarity = 3,
+    cost = 10,
+    pools = {["wagerJokers"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
+
+    config = { extra = { copiesNumber = 1, copies = 'Right' } },
+
+    loc_vars = function(self, info_queue, card)
+        if card.area and card.area == G.jokers then
+            local other_joker
+            if card.ability.extra.copiesNumber == 1 then
+                card.ability.extra.copies = 'Right'
+                for i = 1, #G.jokers.cards do
+                    if G.jokers.cards[i] == card then other_joker = G.jokers.cards[i + 1] end
+                end
+            else
+                card.ability.extra.copies = 'Left'
+                for i = 1, #G.jokers.cards do
+                    if G.jokers.cards[i] == card then other_joker = G.jokers.cards[i - 1] end
+                end
+            end
+            local compatible = other_joker and other_joker ~= card and other_joker.config.center.blueprint_compat
+            main_end = {
+                {
+                    n = G.UIT.C,
+                    config = { align = "bm", minh = 0.4 },
+                    nodes = {
+                        {
+                            n = G.UIT.C,
+                            config = { ref_table = card, align = "m", colour = compatible and mix_colours(G.C.GREEN, G.C.JOKER_GREY, 0.8) or mix_colours(G.C.RED, G.C.JOKER_GREY, 0.8), r = 0.05, padding = 0.06 },
+                            nodes = {
+                                { n = G.UIT.T, config = { text = ' ' .. localize('k_' .. (compatible and 'compatible' or 'incompatible')) .. ' ', colour = G.C.UI.TEXT_LIGHT, scale = 0.32 * 0.8 } },
+                            }
+                        }
+                    }
+                }
+            }
+            return { main_end = main_end, 
+                    vars = { card.ability.extra.copiesNumber, card.ability.extra.copies } }
+        end
+        return { vars = { card.ability.extra.copiesNumber, card.ability.extra.copies } }
+    end,
+    calculate = function(self, card, context)
+        if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
+            card.ability.extra.copiesNumber = math.random(2)
+        end
+
+        local other_joker = nil
+        if card.ability.extra.copiesNumber == 1 then
+            for i = 1, #G.jokers.cards do
+                if G.jokers.cards[i] == card then other_joker = G.jokers.cards[i + 1] end
+            end
+            return SMODS.blueprint_effect(card, other_joker, context)
+        else
+            for i = 1, #G.jokers.cards do
+                if G.jokers.cards[i] == card then other_joker = G.jokers.cards[i - 1] end
+            end
+            return SMODS.blueprint_effect(card, other_joker, context)
+        end
+    end,
+}
 
 -- Golden Apple
 SMODS.Joker {
@@ -886,5 +964,5 @@ SMODS.Joker {
 -- This changes variables globally each round
 function SMODS.current_mod.reset_game_globals(run_start)
     reset_vremade_atJoker_card()
-    reset_vremade_ancient_card()
+    reset_vremade_prism_card()
 end

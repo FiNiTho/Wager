@@ -474,7 +474,6 @@ create_gamble_card_ver2({
                     return true
                 end,
             }))
-
         end
 
         -- Unhighlight all afterwards
@@ -815,7 +814,7 @@ create_gamble_card_ver2({
 -- end
 
 -- {spectral cards}
--- gamble seal
+-- gamble seal/Martingale
 SMODS.Consumable {
     key = 'martingale',
     loc_txt = {
@@ -835,10 +834,6 @@ SMODS.Consumable {
     config = { 
             max_highlighted = 1,
             extra = 'wager_auburnSeal', },
-
-    check_for_unlock = function(self, args)
-        unlock_card(self)
-    end,
 
     loc_vars = function(self, info_queue, card)
         info_queue[#info_queue+1] = G.P_SEALS[(card.ability or self.config).extra]
@@ -876,4 +871,51 @@ SMODS.Consumable {
 			}))
 		end
     end
+}
+
+-- jackpot
+SMODS.Consumable {
+    key = 'jackpot',
+    loc_txt = {
+        name = 'Jackpot',
+        text = {
+            "{C:legendary,E:1}Every card{} held in hand",
+            "permanently gains",
+            "{X:mult,C:white}X2{} Mult",
+        }
+    },
+    atlas = 'consumables',
+    set = 'Spectral',
+    soul_set = 'Gamble',
+    hidden = true,
+    cost = 4,
+    pools = {},
+
+    pos = { x = 1, y = 1 },
+    config = { extra = { x_mult = 1 } },
+
+    loc_vars = function(self, info_queue, card)
+        return { vars = { card.ability.extra.x_mult } }
+    end,
+
+    use = function(self, card, area)
+		for i, c in ipairs(G.hand.cards) do
+            local percent = 0.85 + (i - 0.999) / (#G.hand.cards - 0.998) * 0.3
+            c.ability.perma_x_mult = (c.ability.perma_x_mult or 1) + card.ability.extra.x_mult
+
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.15,
+                func = function()
+                    play_sound("card1", percent)
+                    c:juice_up(0.3, 0.3)
+                    return true
+                end,
+            }))
+        end
+    end,
+
+    can_use = function(self, card)
+        return true
+    end,
 }
