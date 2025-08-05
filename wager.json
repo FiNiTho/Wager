@@ -3,12 +3,12 @@
     "name": "Wager",
     "author": ["FiNiTho"],
     "website_url": "https://github.com/FiNiTho/Wager",
-    "description": "Adds some random stuff.",
+    "description": "Adds mostly vanilla+ stuff. i work on it whenever i feel like it",
     "prefix": "wager",
     "main_file": "core.lua",
     "badge_colour": "b467de",
 	"badge_text_colour": "FFFFFF",
-    "version": "0.9.76",
+    "version": "1.0.0",
     "dependencies": [
         "Steamodded (>=1.0.0~ALPHA-1225a)"
     ],
