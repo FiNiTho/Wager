@@ -180,7 +180,7 @@ SMODS.Joker {
                 "{C:inactive}(Must have room){}"}
     },
     atlas = 'jokers',
-    rarity = 2,
+    rarity = 1,
     cost = 4,
     pools = {["wagerJokers"] = true, ["gambleJoker"] = true},
 
@@ -381,8 +381,8 @@ SMODS.Joker {
     },
     atlas = 'jokers',
     pos = {x = 5, y = 1},
-    rarity = 3,
-    cost = 8,
+    rarity = 2,
+    cost = 6,
     pools = {["wagerJokers"] = true},
 
     unlocked = true,
@@ -594,6 +594,170 @@ SMODS.Joker {
     end,
 }
 
+-- @Joker
+SMODS.Joker {
+    key = '@Joker',
+    loc_txt = {
+        name = '@Joker',
+        text = {
+                "If {C:attention}first hand{} of round",
+                "contains {C:attention}#1#{} of {V:1}#2#{}",
+                "create a {C:attention}tag{}",
+                "{s:0.8}Card changes every round{}"
+            }
+    },
+    atlas = 'jokers',
+    pos = {x = 7, y = 0},
+    rarity = 2,
+    cost = 6,
+    pools = {["wagerJokers"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
+
+    config = { extra = { } },
+
+    loc_vars = function(self, info_queue, card)
+        local atJoker_card = G.GAME.current_round.vremade_atJoker_card or { rank = 'Ace', suit = 'Spades' }
+        return { vars = { localize(atJoker_card.rank, 'ranks'), localize(atJoker_card.suit, 'suits_plural'), colours = { G.C.SUITS[atJoker_card.suit] } } }
+    end,
+
+    calculate = function(self, card, context)
+        if G.GAME.current_round.hands_played == 0 then
+            if context.individual and context.cardarea == G.play and
+                context.other_card:get_id() == G.GAME.current_round.vremade_atJoker_card.id and
+                context.other_card:is_suit(G.GAME.current_round.vremade_atJoker_card.suit) then
+                local tag_pool = get_current_pool('Tag')
+                local selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder'))
+                local it = 1
+                while selected_tag == 'UNAVAILABLE' do
+                    it = it + 1
+                    selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder_resample'..it))
+                end
+                add_tag(Tag(selected_tag, false, 'Small'))
+                return {
+                    message = "tag!",
+                }
+            end
+        end
+    end,
+}
+
+--- This changes vremade_atJoker_card every round so every instance of The atJoker shares the same card.
+--- You could replace this with a context.end_of_round reset instead if you want the variables to be local.
+--- See SMODS.current_mod.reset_game_globals at the bottom of this file for when this function is called.
+local function reset_vremade_atJoker_card()
+    G.GAME.current_round.vremade_atJoker_card = { rank = 'Ace', suit = 'Spades' }
+    local valid_atJoker_cards = {}
+    for _, playing_card in ipairs(G.playing_cards) do
+        if not SMODS.has_no_suit(playing_card) and not SMODS.has_no_rank(playing_card) then
+            valid_atJoker_cards[#valid_atJoker_cards + 1] = playing_card
+        end
+    end
+    local atJoker_card = pseudorandom_element(valid_atJoker_cards, 'vremade_atJoker' .. G.GAME.round_resets.ante)
+    if atJoker_card then
+        G.GAME.current_round.vremade_atJoker_card.rank = atJoker_card.base.value
+        G.GAME.current_round.vremade_atJoker_card.suit = atJoker_card.base.suit
+        G.GAME.current_round.vremade_atJoker_card.id = atJoker_card.base.id
+    end
+end
+
+-- prism joker
+SMODS.Joker {
+    key = 'prism',
+    loc_txt = {
+        name = 'Prism',
+        text = {
+                "If played hand is a {C:attention}Four of a Kind{}",
+                "{C:attention}Change{} all scored cards to {V:1}#1#{}",
+                "{s:0.8}Suit changes every round{}",
+            }
+    },
+    atlas = 'jokers',
+    pos = {x = 7, y = 1},
+    rarity = 1,
+    cost = 6,
+    pools = {["wagerJokers"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
+
+    config = {  },
+
+    loc_vars = function(self, info_queue, card)
+        local suit = (G.GAME.current_round.vremade_ancient_card or {}).suit or 'Spades'
+        return { vars = { localize(suit, 'suits_singular'), colours = { G.C.SUITS[suit] } } }
+    end,
+
+    calculate = function(self, card, context)
+        if context.before and context.main_eval and not context.blueprint and next(context.poker_hands['Four of a Kind']) then
+            for i, _card in ipairs(G.play.cards) do
+                local percent = 1.15 - (i - 0.999) / (#G.play.cards - 0.998) * 0.3
+
+                -- first flip each card
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.15,
+                    func = function()
+                        G.play.cards[i]:flip()
+                        play_sound("card1", percent)
+                        G.play.cards[i]:juice_up(0.3, 0.3)
+                        return true
+                    end,
+                }))
+            end
+            delay(0.2)
+
+            for i, _card in ipairs(G.play.cards) do
+                -- change the suit while it's "face-down"
+                G.E_MANAGER:add_event(Event({
+                    trigger = "after",
+                    delay = 0.1,
+                    func = function()
+                        SMODS.change_base(G.play.cards[i], G.GAME.current_round.vremade_ancient_card.suit)
+                        return true
+                    end,
+                }))
+            end
+
+            for i, _card in ipairs(G.play.cards) do
+                local percent = 0.85 + (i - 0.999) / (#G.play.cards - 0.998) * 0.3
+
+                -- Flip back to show the new ability
+                G.E_MANAGER:add_event(Event({
+                    trigger = "after",
+                    delay = 0.15,
+                    func = function()
+                        G.play.cards[i]:flip()
+                        play_sound('tarot2', percent, 0.6)
+                        G.play.cards[i]:juice_up(0.3, 0.3)
+                        return true
+                    end,
+                }))
+            end
+        end
+    end,
+}
+
+--- This changes vremade_ancient_card every round so every instance of Ancient Joker shares the same card.
+--- You could replace this with a context.end_of_round reset instead if you want the variables to be local.
+--- See SMODS.current_mod.reset_game_globals at the bottom of this file for when this function is called.
+local function reset_vremade_ancient_card()
+    G.GAME.current_round.vremade_ancient_card = G.GAME.current_round.vremade_ancient_card or { suit = 'Spades' }
+    local ancient_suits = {}
+    for k, v in ipairs({ 'Spades', 'Hearts', 'Clubs', 'Diamonds' }) do
+        if v ~= G.GAME.current_round.vremade_ancient_card.suit then ancient_suits[#ancient_suits + 1] = v end
+    end
+    local ancient_card = pseudorandom_element(ancient_suits, 'vremade_ancient' .. G.GAME.round_resets.ante)
+    G.GAME.current_round.vremade_ancient_card.suit = ancient_card
+end
+
 -- Golden Apple
 SMODS.Joker {
     key = 'goldenApple',
@@ -717,3 +881,10 @@ SMODS.Joker {
         end
     end,
 }
+
+
+-- This changes variables globally each round
+function SMODS.current_mod.reset_game_globals(run_start)
+    reset_vremade_atJoker_card()
+    reset_vremade_ancient_card()
+end

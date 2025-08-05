@@ -19,6 +19,8 @@ SMODS.Seal {
         }
     },
     atlas = 'misc',
+    unlocked = true,
+    discovered = true,
 
     calculate = function(self, card, context)
         if context.before and #context.full_hand == 1 then
