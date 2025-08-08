@@ -128,7 +128,7 @@ SMODS.Joker {
             }
         end
         
-        if context.selling_card then
+        if context.selling_card and not context.blueprint then
             if card.ability.extra.hunger < card.ability.extra.maxHunger then
                 card.ability.extra.hunger = card.ability.extra.hunger + 1
                 return {

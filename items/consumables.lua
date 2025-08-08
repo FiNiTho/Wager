@@ -29,7 +29,7 @@ SMODS.ConsumableType {
     },
     primary_colour = G.C.SET.gamble2,
     secondary_colour = G.C.SET.gamble,
-    collection_rows = { 3, 4 },
+    collection_rows = { 4, 5 },
     shop_rate = 0.0,
     default = "c_wager_wager",
 }
@@ -167,6 +167,9 @@ local function create_gamble_card_ver2(params)
             info_queue[#info_queue+1] = G.P_CENTERS[params.info1]
             info_queue[#info_queue+1] = G.P_CENTERS[params.info2]
             info_queue[#info_queue+1] = G.P_CENTERS[params.info3]
+
+            if params.infoKey1 then info_queue[#info_queue+1] = { key = params.infoKey1, set = "Other", vars = {G.GAME.rental_rate or 1} } end
+            if params.infoKey2 then info_queue[#info_queue+1] = { key = params.infoKey2, set = "Other" } end
             local vars = {(G.GAME.probabilities.normal or 1)}
             for _, v in ipairs(params.loc_vars or {}) do
                 table.insert(vars, card.ability.extra[v])
@@ -215,9 +218,9 @@ SMODS.Consumable {
     pos = { x = 0, y = 0 },
     config = { extra = {
             odds = 2,
-            currentAmount = 10,
+            currentAmount = 5,
             gainAmount = 5,
-            maxAmount = 35,
+            maxAmount = 25,
         },     
     },
 
@@ -760,6 +763,148 @@ create_gamble_card_ver2({
     end
 })
 
+-- money
+SMODS.Consumable {
+    key = 'money',
+    loc_txt = {
+        name = 'money',
+        text = {
+            "{C:green}#1# in #2#{} chance for {C:attention}selected{} joker",
+            "to get a {C:money}investment{} sticker",
+            "else get a {C:red}rental{} sticker"
+        },
+    },
+    pos = { x = 0, y = 2 },
+    atlas = 'consumables',
+    set = 'Gamble',
+    cost = 4,
+    pools = {},
+
+    config = { extra = {
+        odds = 6
+        },     
+    },
+
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = { key = "wager_investment", set = "Other" }
+        info_queue[#info_queue+1] = { key = "rental", set = "Other", vars = {G.GAME.rental_rate or 1} }
+        probabilities = (G.GAME.probabilities.normal or 1) + 3
+
+        return { vars = {  
+                probabilities, card.ability.extra.odds
+        } }
+    end,
+
+    can_use = function(self, card)
+        return #G.jokers.highlighted == 1
+    end,
+
+    use = function(self, card, area)
+        local joker = G.jokers.highlighted[1]
+        if pseudorandom('gamble') < probabilities / card.ability.extra.odds then
+            play_sound("wager_gambleMiddleWin")
+            G.GAME.pool_flags.gambleWin = true
+
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.4,
+                func = function()
+                    joker:add_sticker("wager_investment", true)
+                    joker:juice_up(0.3, 0.5)
+                    card:juice_up(0.3, 0.5)
+                    return true
+                end
+            }))
+        else
+            G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.4,
+            func = function()
+                joker:add_sticker("rental", true)
+                joker:juice_up(0.3, 0.5)
+                card:juice_up(0.3, 0.5)
+                return true
+            end
+        }))
+        end
+         -- Unhighlight all afterwards
+        G.E_MANAGER:add_event(Event({
+            trigger = "after",
+            delay = 0.5,
+            func = function()
+                G.jokers:unhighlight_all()
+                return true
+            end,
+        }))
+    end
+}
+
+-- ethernal
+SMODS.Consumable {
+    key = 'ethernal',
+    loc_txt = {
+        name = 'ethernal',
+        text = {
+            "{C:green}#1# in #2#{} chance for {C:attention}selected{} joker",
+            "to get a {C:money}investment{} sticker",
+            "else get a {C:red}rental{} sticker"
+        },
+    },
+    pos = { x = 0, y = 2 },
+    atlas = 'consumables',
+    set = 'Gamble',
+    cost = 4,
+    pools = {},
+
+    config = { extra = {
+        odds = 6
+        },     
+    },
+
+    loc_vars = function(self, info_queue, card)
+        info_queue[#info_queue+1] = { key = "wager_investment", set = "Other" }
+        info_queue[#info_queue+1] = { key = "rental", set = "Other", vars = {G.GAME.rental_rate or 1} }
+        probabilities = (G.GAME.probabilities.normal or 1) + 3
+
+        return { vars = {  
+                probabilities, card.ability.extra.odds
+        } }
+    end,
+
+    can_use = function(self, card)
+        return #G.jokers.highlighted == 1
+    end,
+
+    use = function(self, card, area)
+        local joker = G.jokers.highlighted[1]
+        if pseudorandom('gamble') < probabilities / card.ability.extra.odds then
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.4,
+                func = function()
+                    joker:add_sticker("wager_investment", true)
+                    joker:juice_up(0.3, 0.5)
+                    card:juice_up(0.3, 0.5)
+                    return true
+                end
+            }))
+        else
+            G.E_MANAGER:add_event(Event({
+            trigger = 'after',
+            delay = 0.4,
+            func = function()
+                joker:add_sticker("rental", true)
+                joker:juice_up(0.3, 0.5)
+                card:juice_up(0.3, 0.5)
+                return true
+            end
+        }))
+        end
+    end
+}
+
+
+
 -- -- misc cryptid stuff gamble card
 -- if (SMODS.Mods["Cryptid"] or {}).can_load then
 --     create_gamble_card({
@@ -916,6 +1061,6 @@ SMODS.Consumable {
     end,
 
     can_use = function(self, card)
-        return true
+        return G.hand and #G.hand.cards > 0
     end,
 }
