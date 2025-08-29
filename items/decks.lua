@@ -127,7 +127,7 @@ SMODS.Back{
         },
     },
 	
-	-- config = { vouchers = { "v_overstock_norm", "v_overstock_plus" } },
+	-- config = { vouchers = { "v_overstock_norm", "v_overstock_plus", "v_retcon" } },
     config = { vouchers = { "v_overstock_norm" } },
 	pos = { x = 2, y = 0 },
 	order = 1,

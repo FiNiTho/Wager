@@ -29,7 +29,7 @@ SMODS.ConsumableType {
     },
     primary_colour = G.C.SET.gamble2,
     secondary_colour = G.C.SET.gamble,
-    collection_rows = { 4, 5 },
+    collection_rows = { 2, 3 },
     shop_rate = 0.0,
     default = "c_wager_wager",
 }
@@ -65,6 +65,7 @@ local function create_gamble_card(params)
             info_queue[#info_queue+1] = G.P_CENTERS[params.info1]
             info_queue[#info_queue+1] = G.P_CENTERS[params.info2]
             info_queue[#info_queue+1] = G.P_CENTERS[params.info3]
+            info_queue[#info_queue+1] = G.P_CENTERS[params.info4]
             local vars = {card.ability.extra.roundCount, card.ability.extra.maxroundCount, (G.GAME.probabilities.normal or 1)}
             for _, v in ipairs(params.loc_vars or {}) do
                 table.insert(vars, card.ability.extra[v])
@@ -496,65 +497,128 @@ create_gamble_card_ver2({
     end
 })
 
--- Slots gamble card
-create_gamble_card({
-    key = 'slots',
-    name = 'Slots',
-    text = {
-        "After {C:attention}#2#{} rounds",
-        "Add {C:dark_edition}foil{}, {C:dark_edition}holographic{},",
-        "or {C:dark_edition}polychrome{} effect to",
-        "{C:attention}1{} random joker",
-        "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
-    },
-    pos = { x = 3, y = 0 },
-    config = {
-        roundCount = 0,
-        maxroundCount = 2,
-    },
-    info1 = 'e_foil',
-    info2 = 'e_holo',
-    info3 = 'e_polychrome',
-    loc_vars = {},
-    effect = function(card)
-        local eligibleJokers = {}
-        for i = 1, #G.jokers.cards do
-            local joker = G.jokers.cards[i]
-            if joker.ability.name ~= card.ability.name
-                and joker.ability.set == "Joker"
-                and not joker.edition then
-                    eligibleJokers[#eligibleJokers + 1] = joker
-            end
-        end
-
-        if #eligibleJokers > 0 then
-            G.E_MANAGER:add_event(Event({
-                trigger = 'after',
-                delay = 0.4,
-                func = function()
-                    local edition = poll_edition('wager_slots', nil, true, true,
-                        { 'e_polychrome', 'e_holo', 'e_foil' })
-                    local selected_card = pseudorandom_element(eligibleJokers)
-                    selected_card:set_edition(edition, true)
-                    card:juice_up(0.3, 0.5)
-                    return true
+-- Slots gamble card (Cryptid version)
+if (SMODS.Mods["Cryptid"] or {}).can_load then
+    create_gamble_card({
+        key = 'slots',
+        name = 'Slots',
+        text = {
+            "After {C:attention}#2#{} rounds",
+            "Add {C:dark_edition}foil{}, {C:dark_edition}holographic{},",
+            "{C:dark_edition}polychrome{}, or {C:dark_edition}Mosaic{}",
+            "effect to a random joker",
+            "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
+        },
+        pos = { x = 3, y = 0 },
+        config = {
+            roundCount = 0,
+            maxroundCount = 2,
+        },
+        info1 = 'e_foil',
+        info2 = 'e_holo',
+        info3 = 'e_polychrome',
+        info4 = 'e_cry_mosaic',
+        loc_vars = {},
+        effect = function(card)
+            local eligibleJokers = {}
+            for i = 1, #G.jokers.cards do
+                local joker = G.jokers.cards[i]
+                if joker.ability.name ~= card.ability.name
+                    and joker.ability.set == "Joker"
+                    and not joker.edition then
+                        eligibleJokers[#eligibleJokers + 1] = joker
                 end
-            }))
-        end
-    end,
-    can_use_addons = function(card)
-        local count = 0
-        for i = 1, #G.jokers.cards do
-            local joker = G.jokers.cards[i]
-            if joker.ability.name ~= card.ability.name
-                and joker.ability.set == "Joker"
-                and not joker.edition then
-                count = count + 1
             end
+
+            if #eligibleJokers > 0 then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.4,
+                    func = function()
+                        local edition = poll_edition('wager_slots', nil, true, true,
+                            { 'e_polychrome', 'e_holo', 'e_foil', 'e_cry_mosaic' })
+                        local selected_card = pseudorandom_element(eligibleJokers)
+                        selected_card:set_edition(edition, true)
+                        card:juice_up(0.3, 0.5)
+                        return true
+                    end
+                }))
+            end
+        end,
+        can_use_addons = function(card)
+            local count = 0
+            for i = 1, #G.jokers.cards do
+                local joker = G.jokers.cards[i]
+                if joker.ability.name ~= card.ability.name
+                    and joker.ability.set == "Joker"
+                    and not joker.edition then
+                    count = count + 1
+                end
+            end
+            return count > 0
         end
-        return count > 0
-    end
-})
+    })
+else -- Normal slots version
+    create_gamble_card({
+        key = 'slots',
+        name = 'Slots',
+        text = {
+            "After {C:attention}#2#{} rounds",
+            "Add {C:dark_edition}foil{}, {C:dark_edition}holographic{},",
+            "or {C:dark_edition}polychrome{} effect to",
+            "{C:attention}1{} random joker",
+            "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
+        },
+        pos = { x = 3, y = 0 },
+        config = {
+            roundCount = 0,
+            maxroundCount = 2,
+        },
+        info1 = 'e_foil',
+        info2 = 'e_holo',
+        info3 = 'e_polychrome',
+        loc_vars = {},
+        effect = function(card)
+            local eligibleJokers = {}
+            for i = 1, #G.jokers.cards do
+                local joker = G.jokers.cards[i]
+                if joker.ability.name ~= card.ability.name
+                    and joker.ability.set == "Joker"
+                    and not joker.edition then
+                        eligibleJokers[#eligibleJokers + 1] = joker
+                end
+            end
+
+            if #eligibleJokers > 0 then
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    delay = 0.4,
+                    func = function()
+                        local edition = poll_edition('wager_slots', nil, true, true,
+                            { 'e_polychrome', 'e_holo', 'e_foil' })
+                        local selected_card = pseudorandom_element(eligibleJokers)
+                        selected_card:set_edition(edition, true)
+                        card:juice_up(0.3, 0.5)
+                        return true
+                    end
+                }))
+            end
+        end,
+        can_use_addons = function(card)
+            local count = 0
+            for i = 1, #G.jokers.cards do
+                local joker = G.jokers.cards[i]
+                if joker.ability.name ~= card.ability.name
+                    and joker.ability.set == "Joker"
+                    and not joker.edition then
+                    count = count + 1
+                end
+            end
+            return count > 0
+        end
+    })
+end
+
 
 -- Black Jack gamble card
 create_gamble_card_ver2({
@@ -770,8 +834,8 @@ SMODS.Consumable {
         name = 'money',
         text = {
             "{C:green}#1# in #2#{} chance for {C:attention}selected{} joker",
-            "to get a {C:money}investment{} sticker",
-            "else get a {C:red}rental{} sticker"
+            "to get a {V:1}investment{} sticker",
+            "else get a {C:gold}rental{} sticker"
         },
     },
     pos = { x = 0, y = 2 },
@@ -791,7 +855,7 @@ SMODS.Consumable {
         probabilities = (G.GAME.probabilities.normal or 1) + 3
 
         return { vars = {  
-                probabilities, card.ability.extra.odds
+                probabilities, card.ability.extra.odds, colours = { HEX('459373') }
         } }
     end,
 
@@ -845,9 +909,9 @@ SMODS.Consumable {
     loc_txt = {
         name = 'ethernal',
         text = {
-            "{C:green}#1# in #2#{} chance for {C:attention}selected{} joker",
-            "to get a {C:money}investment{} sticker",
-            "else get a {C:red}rental{} sticker"
+            "apply {V:1}Ethernal{} and {V:2}Guardian{} stickers",
+            "to {C:attention}leftmost{} joker {C:green}#1# in #2#{} chance",
+            "to be {C:attention}rightmost{} joker"
         },
     },
     pos = { x = 0, y = 2 },
@@ -857,53 +921,73 @@ SMODS.Consumable {
     pools = {},
 
     config = { extra = {
-        odds = 6
+        odds = 2
         },     
     },
 
     loc_vars = function(self, info_queue, card)
-        info_queue[#info_queue+1] = { key = "wager_investment", set = "Other" }
-        info_queue[#info_queue+1] = { key = "rental", set = "Other", vars = {G.GAME.rental_rate or 1} }
-        probabilities = (G.GAME.probabilities.normal or 1) + 3
+        info_queue[#info_queue+1] = { key = "eternal", set = "Other" }
+        info_queue[#info_queue+1] = { key = "wager_guardian", set = "Other" }
 
         return { vars = {  
-                probabilities, card.ability.extra.odds
+                (G.GAME.probabilities.normal or 1), card.ability.extra.odds, colours = { HEX('c75985'), HEX('cc4846') }
         } }
     end,
 
     can_use = function(self, card)
-        return #G.jokers.highlighted == 1
+        return #G.jokers.cards >= 1
     end,
 
     use = function(self, card, area)
-        local joker = G.jokers.highlighted[1]
-        if pseudorandom('gamble') < probabilities / card.ability.extra.odds then
-            G.E_MANAGER:add_event(Event({
-                trigger = 'after',
-                delay = 0.4,
-                func = function()
-                    joker:add_sticker("wager_investment", true)
-                    joker:juice_up(0.3, 0.5)
-                    card:juice_up(0.3, 0.5)
-                    return true
-                end
-            }))
+        if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.odds then
+            joker = G.jokers.cards[#G.jokers.cards]
         else
-            G.E_MANAGER:add_event(Event({
+            joker = G.jokers.cards[1]
+        end
+
+        G.E_MANAGER:add_event(Event({
             trigger = 'after',
             delay = 0.4,
             func = function()
-                joker:add_sticker("rental", true)
+                joker:add_sticker("eternal", true)
+                joker:add_sticker("wager_guardian", true)
                 joker:juice_up(0.3, 0.5)
                 card:juice_up(0.3, 0.5)
                 return true
             end
         }))
-        end
     end
 }
 
-
+-- tag gamble card
+create_gamble_card({
+    key = 'tag',
+    name = 'tag',
+    text = {
+        "After {C:attention}#2#{} rounds",
+        "get a random {C:attention}tag{}",
+        "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
+    },
+    pos = { x = 0, y = 2 },
+    config = {
+        roundCount = 0,
+        maxroundCount = 1,
+    },
+    loc_vars = {},
+    effect = function(card)
+        local tag_pool = get_current_pool('Tag')
+        local selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder'))
+        local it = 1
+        while selected_tag == 'UNAVAILABLE' do
+            it = it + 1
+            selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder_resample'..it))
+        end
+        add_tag(Tag(selected_tag, false, 'Small'))
+    end,
+    can_use_addons = function(card)
+        return true
+    end
+})
 
 -- -- misc cryptid stuff gamble card
 -- if (SMODS.Mods["Cryptid"] or {}).can_load then

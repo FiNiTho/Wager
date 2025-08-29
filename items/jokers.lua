@@ -224,7 +224,6 @@ SMODS.Joker {
                         delay = 0.2,
                         func = function()
                             SMODS.add_card({ set = 'Gamble' })
-                            new_card.ability.extra.created_by_jackpot = true
                             return true
                         end
                     }))
