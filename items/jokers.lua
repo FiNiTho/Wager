@@ -668,7 +668,7 @@ SMODS.Joker {
     loc_txt = {
         name = 'Prism',
         text = {
-                "If played hand is a {C:attention}Four of a Kind{}",
+                "If played hand is a {C:attention}Flush{}",
                 "{C:attention}Change{} all scored cards to {V:1}#1#{}",
                 "{s:0.8}Suit changes every round{}",
             }
@@ -693,7 +693,7 @@ SMODS.Joker {
     end,
 
     calculate = function(self, card, context)
-        if context.before and context.main_eval and not context.blueprint and next(context.poker_hands['Four of a Kind']) then
+        if context.before and context.main_eval and not context.blueprint and next(context.poker_hands['Flush']) then
             for i, _card in ipairs(G.play.cards) do
                 local percent = 1.15 - (i - 0.999) / (#G.play.cards - 0.998) * 0.3
 
@@ -958,7 +958,6 @@ SMODS.Joker {
         end
     end,
 }
-
 
 -- This changes variables globally each round
 function SMODS.current_mod.reset_game_globals(run_start)

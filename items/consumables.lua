@@ -280,10 +280,10 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
         key = 'roulette',
         name = 'Roulette',
         text = {
-            "After {C:attention}#2#{} rounds create a random Joker",
-            "{C:green}#3# in #5#{} chance to get {C:cry_epic}epic{}",
-            "{C:green}#3# in #4#{} chance to get {C:legendary,E:1}legendary{}",
-            "{C:green}#3# in #6#{} chance to get {C:cry_exotic,E:1}exotic{}",
+            "After {C:attention}#2#{} rounds {C:attention}choose{} out of a few jokers",
+            "{C:green}#3# in #5#{} chance to get only {C:cry_epic}epic{}",
+            "{C:green}#3# in #4#{} chance to get only {C:legendary,E:1}legendary{}",
+            "{C:green}#3# in #6#{} chance to get only {C:cry_exotic,E:1}exotic{}",
             "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
         },
         pos = { x = 1, y = 0 },
@@ -291,7 +291,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
             roundCount = 0, 
             maxroundCount = 1,
             legendaryOdds = 30,
-            epicOdds = 10,
+            epicOdds = 2,
             exoticOdds = 50,
         },
         loc_vars = {'legendaryOdds', 'epicOdds', 'exoticOdds'},
@@ -303,27 +303,19 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
                         play_sound("wager_gambleWin")
                         G.GAME.pool_flags.gambleWin = true
 
-                        local new_card = create_card("Joker", G.jokers, nil, "cry_exotic", nil, nil)
-                        new_card:add_to_deck()
-                        G.jokers:emplace(new_card)
+                        show_joker_menu(1, "cry_exotic")
                     elseif pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.legendaryOdds then
                         play_sound("wager_gambleMiddleWin")
                         G.GAME.pool_flags.gambleWin = true
 
-                        local new_card = create_card("Joker", G.jokers, true, nil, nil, nil)
-                        new_card:add_to_deck()
-                        G.jokers:emplace(new_card)
+                        show_joker_menu(2, nil, true)
                     elseif pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.epicOdds then
                         play_sound("wager_gambleSmallWin")
                         G.GAME.pool_flags.gambleWin = true
 
-                        local new_card = create_card("Joker", G.jokers, nil, "cry_epic", nil, nil)
-                        new_card:add_to_deck()
-                        G.jokers:emplace(new_card)
+                        show_joker_menu(2, "cry_epic")
                     else
-                        local new_card = create_card("Joker", G.jokers, nil, nil, nil, nil)
-                        new_card:add_to_deck()
-                        G.jokers:emplace(new_card)
+                        show_joker_menu(3, nil)
                     end
                 return true
                 end }))
@@ -331,7 +323,8 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
             end
         end,
         can_use_addons = function(card)
-            return #G.jokers.cards < G.jokers.config.card_limit
+            G.GAME.pool_flags.joker_menu = G.GAME.pool_flags.joker_menu or false
+            return #G.jokers.cards < G.jokers.config.card_limit and G.GAME.pool_flags.joker_menu == false
         end
     })
 else-- Normal roulette version
@@ -339,9 +332,9 @@ else-- Normal roulette version
         key = 'roulette',
         name = 'Roulette',
         text = {
-            "After {C:attention}#2#{} rounds create a random Joker",
-            "{C:green}#3# in #5#{} chance to get {C:rare}rare{}",
-            "{C:green}#3# in #4#{} chance to get {C:legendary,E:1}legendary{}",
+            "After {C:attention}#2#{} rounds {C:attention}choose{} out of a few jokers",
+            "{C:green}#3# in #5#{} chance to get only {C:rare}rare{}",
+            "{C:green}#3# in #4#{} chance to get only {C:legendary,E:1}legendary{}",
             "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
         },
         pos = { x = 1, y = 0 },
@@ -360,20 +353,14 @@ else-- Normal roulette version
                         play_sound("wager_gambleWin")
                         G.GAME.pool_flags.gambleWin = true
 
-                        local new_card = create_card("Joker", G.jokers, true, nil, nil, nil)
-                        new_card:add_to_deck()
-                        G.jokers:emplace(new_card)
+                        show_joker_menu(2, nil, true)
                     elseif pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.rareOdds then
                         play_sound("wager_gambleSmallWin")
                         G.GAME.pool_flags.gambleWin = true
 
-                        local new_card = create_card("Joker", G.jokers, nil, 1, nil, nil)
-                        new_card:add_to_deck()
-                        G.jokers:emplace(new_card)
+                        show_joker_menu(2, 1)
                     else
-                        local new_card = create_card("Joker", G.jokers, nil, nil, nil, nil)
-                        new_card:add_to_deck()
-                        G.jokers:emplace(new_card)
+                        show_joker_menu(3, nil)
                     end
                 return true
                 end }))
@@ -382,7 +369,8 @@ else-- Normal roulette version
         end,
 
         can_use_addons = function(card)
-            return #G.jokers.cards < G.jokers.config.card_limit
+            G.GAME.pool_flags.joker_menu = G.GAME.pool_flags.joker_menu or false
+            return #G.jokers.cards < G.jokers.config.card_limit and G.GAME.pool_flags.joker_menu == false
         end
     })
 end
@@ -618,7 +606,6 @@ else -- Normal slots version
         end
     })
 end
-
 
 -- Black Jack gamble card
 create_gamble_card_ver2({
