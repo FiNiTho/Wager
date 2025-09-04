@@ -323,8 +323,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
             end
         end,
         can_use_addons = function(card)
-            G.GAME.pool_flags.joker_menu = G.GAME.pool_flags.joker_menu or false
-            return #G.jokers.cards < G.jokers.config.card_limit and G.GAME.pool_flags.joker_menu == false
+            return #G.jokers.cards < G.jokers.config.card_limit
         end
     })
 else-- Normal roulette version
@@ -369,8 +368,7 @@ else-- Normal roulette version
         end,
 
         can_use_addons = function(card)
-            G.GAME.pool_flags.joker_menu = G.GAME.pool_flags.joker_menu or false
-            return #G.jokers.cards < G.jokers.config.card_limit and G.GAME.pool_flags.joker_menu == false
+            return #G.jokers.cards < G.jokers.config.card_limit
         end
     })
 end
