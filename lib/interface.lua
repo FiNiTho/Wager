@@ -4,15 +4,19 @@ local function create_clickable_joker(rarity, legendary)
     -- Add a custom click handler
     card.click = function(self)
         -- print("Clicked card:", self)
-
-        if G.OVERLAY_MENU then
-            G.OVERLAY_MENU:remove()
-            G.OVERLAY_MENU = nil
+        if #G.jokers.cards < G.jokers.config.card_limit then
+            if G.OVERLAY_MENU then
+                G.OVERLAY_MENU:remove()
+                G.OVERLAY_MENU = nil
+            end
+            local t_card = copy_card(self)
+            t_card:add_to_deck()
+            G.jokers:emplace(t_card)
+        else 
+            for i = 1, #G.jokers.cards do
+                G.jokers.cards[i]:juice_up(0.2, 0.4)
+            end
         end
-
-        local t_card = copy_card(self)
-        t_card:add_to_deck()
-        G.jokers:emplace(t_card)
     end
 
     return card
@@ -26,16 +30,19 @@ function joker_menu(amount, rarity, legendary)
 
     return {
         n = G.UIT.ROOT,
-        config = {r = 0.1, minw = 8, minh = 6, align = "cm", padding = 0.2, colour = HEX("2e3a3c"), outline = 1, outline_colour = HEX("1e2b2d") , shadow = true},
+        config = {r = 0.1, minw = 8, minh = 6, align = "cm", padding = 0.2, colour = G.C.GREY, outline = 1, outline_colour = G.C.INACTIVE , shadow = true, emboss = 0.05},
         nodes = {
             {n = G.UIT.C, config = {minw=4, minh=1, padding = 0.15, align = "cm"}, nodes = {
-                {n = G.UIT.R, config = {minw=4, minh=1, padding = 0.15, align = "cm"}, nodes = {
+                {n = G.UIT.R, config = {padding = 0.2, align = "cm"}, nodes = {
                     {n = G.UIT.T, config={text = "Choose a joker", colour = G.C.UI.TEXT_LIGHT, scale = 0.7}},
                 }},
-                {n = G.UIT.R, config = {r = 0.1, align = "cm", padding = 0.2, colour = HEX("1e2b2d"), shadow = true}, nodes = {
-                    {n = G.UIT.C, config = {minw=4, minh=3, padding = 0.15}, nodes = {
+                {n = G.UIT.R, config = {r = 0.1, align = "cm", padding = 0.1, colour = G.C.BLACK, emboss = 0.05, shadow = true}, nodes = {
+                    {n = G.UIT.C, config = {minw=4, minh=3, padding = 0.1}, nodes = {
                         {n = G.UIT.C, config = {minw=4, minh=3, padding = 0.15}, nodes = card_nodes},
                     }},
+                }},
+                {n = G.UIT.R, config = { padding = 0.2, align = "cm", },nodes = { 
+                    UIBox_button({ minw = 3.85, button = "skip", label = {"Skip"} }),
                 }},
             }},
         }
@@ -50,4 +57,11 @@ function show_joker_menu(amount, rarity, legendary)
     G.FUNCS.overlay_menu{
         definition = joker_menu(amount, rarity, legendary),
     }
+end
+
+function G.FUNCS.skip(e)
+    if G.OVERLAY_MENU then
+        G.OVERLAY_MENU:remove()
+        G.OVERLAY_MENU = nil
+    end
 end

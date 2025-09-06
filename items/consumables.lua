@@ -135,10 +135,9 @@ local function create_gamble_card(params)
 
                 return {}
             else
-                local new_card = create_card("Consumable", G.consumeables, nil, nil, true, true, "c_wager_"..params.key)
-                new_card:start_materialize()
-                new_card:add_to_deck()
-                G.consumeables:emplace(new_card)
+                local t_card = copy_card(card)
+                t_card:add_to_deck()
+                G.consumeables:emplace(t_card)
             end
         end
     }
@@ -291,7 +290,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
             roundCount = 0, 
             maxroundCount = 1,
             legendaryOdds = 30,
-            epicOdds = 2,
+            epicOdds = 10,
             exoticOdds = 50,
         },
         loc_vars = {'legendaryOdds', 'epicOdds', 'exoticOdds'},
@@ -812,18 +811,18 @@ create_gamble_card_ver2({
     end
 })
 
--- money
+-- parlay gamble card
 SMODS.Consumable {
-    key = 'money',
+    key = 'parlay',
     loc_txt = {
-        name = 'money',
+        name = 'Parlay',
         text = {
             "{C:green}#1# in #2#{} chance for {C:attention}selected{} joker",
             "to get a {V:1}investment{} sticker",
             "else get a {C:gold}rental{} sticker"
         },
     },
-    pos = { x = 0, y = 2 },
+    pos = { x = 5, y = 1 },
     atlas = 'consumables',
     set = 'Gamble',
     cost = 4,
@@ -888,18 +887,18 @@ SMODS.Consumable {
     end
 }
 
--- ethernal
+-- hi-lo gamble card
 SMODS.Consumable {
-    key = 'ethernal',
+    key = 'hi-lo',
     loc_txt = {
-        name = 'ethernal',
+        name = 'Hi-Lo',
         text = {
             "apply {V:1}Ethernal{} and {V:2}Guardian{} stickers",
             "to {C:attention}leftmost{} joker {C:green}#1# in #2#{} chance",
             "to be {C:attention}rightmost{} joker"
         },
     },
-    pos = { x = 0, y = 2 },
+    pos = { x = 4, y = 1 },
     atlas = 'consumables',
     set = 'Gamble',
     cost = 4,
@@ -944,30 +943,47 @@ SMODS.Consumable {
     end
 }
 
--- tag gamble card
+-- lammer gamble card
 create_gamble_card({
-    key = 'tag',
-    name = 'tag',
+    key = 'lammer',
+    name = 'Lammer',
     text = {
         "After {C:attention}#2#{} rounds",
         "get a random {C:attention}tag{}",
+        "{C:green}#3# in #4#{} to get 2 {C:attention}tags{}",
         "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
     },
-    pos = { x = 0, y = 2 },
+    pos = { x = 6, y = 1 },
     config = {
         roundCount = 0,
         maxroundCount = 1,
+        odds = 4,
     },
-    loc_vars = {},
+    loc_vars = { 'odds'},
     effect = function(card)
-        local tag_pool = get_current_pool('Tag')
-        local selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder'))
-        local it = 1
-        while selected_tag == 'UNAVAILABLE' do
-            it = it + 1
-            selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder_resample'..it))
+        if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.odds then
+            play_sound("wager_gambleSmallWin")
+            G.GAME.pool_flags.gambleWin = true
+            for i = 1, 2 do
+                local tag_pool = get_current_pool('Tag')
+                local selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder'))
+                local it = 1
+                while selected_tag == 'UNAVAILABLE' do
+                    it = it + 1
+                    selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder_resample'..it))
+                end
+                add_tag(Tag(selected_tag, false, 'Small'))
+            end
+        else
+            local tag_pool = get_current_pool('Tag')
+            local selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder'))
+            local it = 1
+            while selected_tag == 'UNAVAILABLE' do
+                it = it + 1
+                selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder_resample'..it))
+            end
+            add_tag(Tag(selected_tag, false, 'Small'))
         end
-        add_tag(Tag(selected_tag, false, 'Small'))
     end,
     can_use_addons = function(card)
         return true
