@@ -906,6 +906,222 @@ SMODS.Joker {
     end,
 }
 
+-- Charitable Joker
+SMODS.Joker {
+    key = 'charitableJoker',
+    loc_txt = {
+        name = 'Charitable Joker',
+        text = {
+            "each {C:diamonds}#2#{} card",
+            "held in hand",
+            "gives {C:chips}+#1#{} chips",
+        }
+    },
+    atlas = 'jokers',
+    rarity = 1,
+    cost = 5,
+    pools = {["wagerJokers"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
+
+    pos = { x = 0, y = 2 },
+    config = { extra = { chips = 30, suit = 'Diamonds' } },
+
+    loc_vars = function(self, info_queue, card)
+		return { vars = { card.ability.extra.chips, localize(card.ability.extra.suit, 'suits_singular') } }
+	end,
+
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.hand and not context.end_of_round and context.other_card:is_suit(card.ability.extra.suit) then
+            if context.other_card.debuff then
+                return {
+                    message = localize('k_debuffed'),
+                    colour = G.C.RED
+                }
+            else
+                return {
+                    chips = card.ability.extra.chips
+                }
+            end
+        end
+	end,
+}
+
+-- Pure Joker
+SMODS.Joker {
+    key = 'pureJoker',
+    loc_txt = {
+        name = 'Pure Joker',
+        text = {
+            "each {C:hearts}#2#{} card",
+            "held in hand",
+            "gives {C:chips}+#1#{} chips",
+        }
+    },
+    atlas = 'jokers',
+    rarity = 1,
+    cost = 5,
+    pools = {["wagerJokers"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
+
+    pos = { x = 1, y = 2 },
+    config = { extra = { chips = 30, suit = 'Hearts' } },
+
+    loc_vars = function(self, info_queue, card)
+		return { vars = { card.ability.extra.chips, localize(card.ability.extra.suit, 'suits_singular') } }
+	end,
+
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.hand and not context.end_of_round and context.other_card:is_suit(card.ability.extra.suit) then
+            if context.other_card.debuff then
+                return {
+                    message = localize('k_debuffed'),
+                    colour = G.C.RED
+                }
+            else
+                return {
+                    chips = card.ability.extra.chips
+                }
+            end
+        end
+	end,
+}
+
+-- Peaceful Joker
+SMODS.Joker {
+    key = 'peacefulJoker',
+    loc_txt = {
+        name = 'Peaceful Joker',
+        text = {
+            "each {C:spades}#2#{} card",
+            "held in hand",
+            "gives {C:chips}+#1#{} chips",
+        }
+    },
+    atlas = 'jokers',
+    rarity = 1,
+    cost = 5,
+    pools = {["wagerJokers"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
+
+    pos = { x = 2, y = 2 },
+    config = { extra = { chips = 30, suit = 'Spades' } },
+
+    loc_vars = function(self, info_queue, card)
+		return { vars = { card.ability.extra.chips, localize(card.ability.extra.suit, 'suits_singular') } }
+	end,
+
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.hand and not context.end_of_round and context.other_card:is_suit(card.ability.extra.suit) then
+            if context.other_card.debuff then
+                return {
+                    message = localize('k_debuffed'),
+                    colour = G.C.RED
+                }
+            else
+                return {
+                    chips = card.ability.extra.chips
+                }
+            end
+        end
+	end,
+}
+
+-- Abstemious Joker
+SMODS.Joker {
+    key = 'abstemiousJoker',
+    loc_txt = {
+        name = 'Abstemious Joker',
+        text = {
+            "each {C:clubs}#2#{} card",
+            "held in hand",
+            "gives {C:chips}+#1#{} chips",
+        }
+    },
+    atlas = 'jokers',
+    rarity = 1,
+    cost = 5,
+    pools = {["wagerJokers"] = true},
+
+    unlocked = true,
+    discovered = false,
+    blueprint_compat = true,
+    eternal_compat = true,
+    preishable_compat = true,
+
+    pos = { x = 3, y = 2 },
+    config = { extra = { chips = 30, suit = 'Clubs' } },
+
+    loc_vars = function(self, info_queue, card)
+		return { vars = { card.ability.extra.chips, localize(card.ability.extra.suit, 'suits_singular') } }
+	end,
+
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.hand and not context.end_of_round and context.other_card:is_suit(card.ability.extra.suit) then
+            if context.other_card.debuff then
+                return {
+                    message = localize('k_debuffed'),
+                    colour = G.C.RED
+                }
+            else
+                return {
+                    chips = card.ability.extra.chips
+                }
+            end
+        end
+	end,
+}
+
+-- traffic joker
+SMODS.Joker {
+    key = "traffic",
+    loc_txt = {
+        name = 'Traffic',
+        text = {
+            "+X1 mult for each",
+            "Joker above 5",
+            "Currently X#1# mult",
+        }
+    },
+    blueprint_compat = true,
+    rarity = 1,
+    cost = 4,
+    pos = { x = 3, y = 3 },
+    config = { extra = { total = 1 } },
+    loc_vars = function(self, info_queue, card)
+        -- makes sure that it doesnt crash when viewing it in the collection in the main menu
+        local joker_count = (G and G.jokers and G.jokers.cards) and #G.jokers.cards or 0
+        card.ability.extra.total = 1 + math.max(0, joker_count - 5)
+        return { vars = { card.ability.extra.total } }
+    end,
+    calculate = function(self, card, context)
+        if context.joker_main then
+            local joker_count = #G.jokers.cards
+            local total = 1 + math.max(0, joker_count - 5)
+            return {
+                x_mult = total
+            }
+        end
+    end,
+    in_pool = function(self, args)
+        return #G.jokers.cards > 5
+    end
+}
+
 -- Till/Till Eulenspiegel
 SMODS.Joker {
     key = 'till',
