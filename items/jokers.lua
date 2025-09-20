@@ -912,7 +912,7 @@ SMODS.Joker {
     loc_txt = {
         name = 'Charitable Joker',
         text = {
-            "each {C:diamonds}#2#{} card",
+            "Each {C:diamonds}#2#{} card",
             "held in hand",
             "gives {C:chips}+#1#{} chips",
         }
@@ -957,7 +957,7 @@ SMODS.Joker {
     loc_txt = {
         name = 'Pure Joker',
         text = {
-            "each {C:hearts}#2#{} card",
+            "Each {C:hearts}#2#{} card",
             "held in hand",
             "gives {C:chips}+#1#{} chips",
         }
@@ -1002,7 +1002,7 @@ SMODS.Joker {
     loc_txt = {
         name = 'Peaceful Joker',
         text = {
-            "each {C:spades}#2#{} card",
+            "Each {C:spades}#2#{} card",
             "held in hand",
             "gives {C:chips}+#1#{} chips",
         }
@@ -1047,7 +1047,7 @@ SMODS.Joker {
     loc_txt = {
         name = 'Abstemious Joker',
         text = {
-            "each {C:clubs}#2#{} card",
+            "Each {C:clubs}#2#{} card",
             "held in hand",
             "gives {C:chips}+#1#{} chips",
         }
@@ -1100,7 +1100,8 @@ SMODS.Joker {
     blueprint_compat = true,
     rarity = 1,
     cost = 4,
-    pos = { x = 3, y = 3 },
+    atlas = 'jokers',
+    pos = { x = 4, y = 2 },
     config = { extra = { total = 1 } },
     loc_vars = function(self, info_queue, card)
         -- makes sure that it doesnt crash when viewing it in the collection in the main menu

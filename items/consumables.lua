@@ -893,9 +893,9 @@ SMODS.Consumable {
     loc_txt = {
         name = 'Hi-Lo',
         text = {
-            "apply {V:1}Ethernal{} and {V:2}Guardian{} stickers",
-            "to {C:attention}leftmost{} joker {C:green}#1# in #2#{} chance",
-            "to be {C:attention}rightmost{} joker"
+            "{C:attention}Selected{} joker gets {V:1}Ethernal{}",
+            "sticker {C:green}#1# in #2#{} chance to",
+            "also get {V:2}Guardian{} sticker",
         },
     },
     pos = { x = 4, y = 1 },
@@ -919,26 +919,46 @@ SMODS.Consumable {
     end,
 
     can_use = function(self, card)
-        return #G.jokers.cards >= 1
+        return #G.jokers.highlighted == 1
     end,
 
     use = function(self, card, area)
+        local joker = G.jokers.highlighted[1]
         if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.extra.odds then
-            joker = G.jokers.cards[#G.jokers.cards]
-        else
-            joker = G.jokers.cards[1]
-        end
+            play_sound("wager_gambleSmallWin")
+            G.GAME.pool_flags.gambleWin = true
 
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.4,
+                func = function()
+                    joker:add_sticker("eternal", true)
+                    joker:add_sticker("wager_guardian", true)
+                    joker:juice_up(0.3, 0.5)
+                    card:juice_up(0.3, 0.5)
+                    return true
+                end
+            }))
+        else
+            G.E_MANAGER:add_event(Event({
+                trigger = 'after',
+                delay = 0.4,
+                func = function()
+                    joker:add_sticker("eternal", true)
+                    joker:juice_up(0.3, 0.5)
+                    card:juice_up(0.3, 0.5)
+                    return true
+                end
+            }))
+        end
+            -- Unhighlight all afterwards
         G.E_MANAGER:add_event(Event({
-            trigger = 'after',
-            delay = 0.4,
+            trigger = "after",
+            delay = 0.5,
             func = function()
-                joker:add_sticker("eternal", true)
-                joker:add_sticker("wager_guardian", true)
-                joker:juice_up(0.3, 0.5)
-                card:juice_up(0.3, 0.5)
+                G.jokers:unhighlight_all()
                 return true
-            end
+            end,
         }))
     end
 }
