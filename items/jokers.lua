@@ -431,7 +431,7 @@ SMODS.Joker {
     eternal_compat = true,
     preishable_compat = true,
 
-    config = { extra = { d_size = 3, d_loss = 1, cards_remaining = 10, cards = 10  }},
+    config = { extra = { d_size = 3, d_loss = 1, cards_remaining = 15, cards = 15  }},
 
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.d_size, card.ability.extra.d_loss, card.ability.extra.cards_remaining, card.ability.extra.cards } }
@@ -469,12 +469,13 @@ SMODS.Joker {
                 colour = G.C.RED
             }
 
-            elseif context.individual then
+            elseif context.individual and context.cardarea == G.play then
                 if card.ability.extra.cards_remaining <= 1 then
                     card.ability.extra.cards_remaining = card.ability.extra.cards
                     card.ability.extra.d_size = card.ability.extra.d_size - card.ability.extra.d_loss
                     G.GAME.round_resets.discards = G.GAME.round_resets.discards - card.ability.extra.d_loss
                     if card.ability.extra.d_size <= 0 then
+                        -- Will trigger removal next pass
                     else
                         return {
                             message = "-" .. card.ability.extra.d_loss,
@@ -483,9 +484,10 @@ SMODS.Joker {
                     end
                 else
                     card.ability.extra.cards_remaining = card.ability.extra.cards_remaining - 1
-                    return nil, true -- This is for Joker retrigger purposes
+                    return nil, true
                 end
             end
+
     end,
 
     add_to_deck = function(self, card, from_debuff)
@@ -522,7 +524,7 @@ SMODS.Joker {
     eternal_compat = true,
     preishable_compat = true,
 
-    config = { extra = { h_size = 3, h_loss = 1, discards_remaining = 15, discards = 15 }},
+    config = { extra = { h_size = 3, h_loss = 1, discards_remaining = 10, discards = 10 }},
 
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.h_size, card.ability.extra.h_loss, card.ability.extra.discards_remaining, card.ability.extra.discards } }
@@ -858,7 +860,7 @@ SMODS.Joker {
     eternal_compat = true,
     preishable_compat = true,
 
-    config = { extra = { money = 10, moneyLoss = 1, playAmount = 10 }},
+    config = { extra = { money = 8, moneyLoss = 1 }},
 
     loc_vars = function(self, info_queue, card)
         return {vars = { card.ability.extra.money, card.ability.extra.moneyLoss }}
@@ -1123,43 +1125,79 @@ SMODS.Joker {
     end
 }
 
--- SMODS.Joker {
---     key = "caino",
---     loc_txt = {
---         name = 'caino',
---         text = {
---             "+X1 mult for each",,
---         }
---     },
---     unlocked = false,
---     blueprint_compat = true,
---     rarity = 4,
---     cost = 20,
---     pos = { x = 3, y = 8 },
---     soul_pos = { x = 3, y = 9 },
---     config = { extra = { xmult = 1, xmult_gain = 1 } },
---     loc_vars = function(self, info_queue, card)
---         return { vars = { card.ability.extra.xmult_gain, card.ability.extra.xmult } }
---     end,
---     calculate = function(self, card, context)
---         if context.remove_playing_cards and not context.blueprint then
---             local face_cards = 0
---             for _, removed_card in ipairs(context.removed) do
---                 if removed_card:is_face() then face_cards = face_cards + 1 end
---             end
---             if face_cards > 0 then
---                 -- See note about SMODS Scaling Manipulation on the wiki
---                 card.ability.extra.xmult = card.ability.extra.xmult + face_cards * card.ability.extra.xmult_gain
---                 return { message = localize { type = 'variable', key = 'a_xmult', vars = { card.ability.extra.xmult } } }
---             end
---         end
---         if context.joker_main then
---             return {
---                 xmult = card.ability.extra.xmult
---             }
---         end
---     end,
--- }
+-- Dog tag
+SMODS.Joker {
+    key = "dogTag",
+    loc_txt = {
+        name = 'Dog tag',
+        text = {
+            "Get a {C:attention}tag{} for",
+            "each {C:attention}jack{} destroyed"
+        }
+    },
+    unlocked = false,
+    blueprint_compat = true,
+    rarity = 2,
+    cost = 5,
+    pos = { x = 3, y = 8 },
+    soul_pos = { x = 3, y = 9 },
+    config = { extra = { } },
+    loc_vars = function(self, info_queue, card)
+        return { vars = { } }
+    end,
+    calculate = function(self, card, context)
+        if context.remove_playing_cards then
+            local face_cards = 0
+            for _, removed_card in ipairs(context.removed) do
+                if removed_card:get_id() == 11 then 
+                    face_cards = face_cards + 1
+
+                    local tag_pool = get_current_pool('Tag')
+                    local selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder'))
+                    local it = 1
+                    while selected_tag == 'UNAVAILABLE' do
+                        it = it + 1
+                        selected_tag = pseudorandom_element(tag_pool, pseudoseed('ortalab_hoarder_resample'..it))
+                    end
+                    add_tag(Tag(selected_tag, false, 'Small'))
+                end
+            end
+            if face_cards > 0 then
+                return {
+                    message = "tag!",
+                }
+            end
+        end
+    end,
+}
+
+-- highcard
+SMODS.Joker {
+    key = "highcard",
+    loc_txt = {
+        name = 'highcard',
+        text = {
+            "For each scored card in",
+            "{C:attention}#2#{} get {X:mult,C:white}X#1#{} Mult"
+        }
+    },
+    blueprint_compat = true,
+    rarity = 1,
+    cost = 5,
+    pos = { x = 2, y = 13 },
+    pixel_size = { h = 95 / 1.2 },
+    config = { extra = { xmult = 1.5, type = 'High Card' } },
+    loc_vars = function(self, info_queue, card)
+        return { vars = { card.ability.extra.xmult, card.ability.extra.type } }
+    end,
+    calculate = function(self, card, context)
+        if context.individual and context.cardarea == G.play and context.scoring_name == card.ability.extra.type then
+            return {
+                xmult = card.ability.extra.xmult
+            }
+        end
+    end
+}
 
 -- Till/Till Eulenspiegel
 SMODS.Joker {
