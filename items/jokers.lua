@@ -1094,9 +1094,8 @@ SMODS.Joker {
     loc_txt = {
         name = 'Traffic',
         text = {
-            "+X1 mult for each",
-            "Joker above 5",
-            "Currently X#1# mult",
+            "Jokers above {C:attention}5{} jokers",
+            "each give {X:mult,C:white}X#1#{} Mult",
         }
     },
     blueprint_compat = true,
@@ -1104,20 +1103,27 @@ SMODS.Joker {
     cost = 4,
     atlas = 'jokers',
     pos = { x = 4, y = 2 },
-    config = { extra = { total = 1 } },
+    config = { extra = { xmult = 2 } },
     loc_vars = function(self, info_queue, card)
-        -- makes sure that it doesnt crash when viewing it in the collection in the main menu
-        local joker_count = (G and G.jokers and G.jokers.cards) and #G.jokers.cards or 0
-        card.ability.extra.total = 1 + math.max(0, joker_count - 5)
-        return { vars = { card.ability.extra.total } }
+        return { vars = { card.ability.extra.xmult } }
     end,
     calculate = function(self, card, context)
-        if context.joker_main then
-            local joker_count = #G.jokers.cards
-            local total = 1 + math.max(0, joker_count - 5)
-            return {
-                x_mult = total
-            }
+        if context.other_joker then
+            -- find index of the current joker being checked
+            local id = nil
+            for i, j in ipairs(G.jokers.cards) do
+                if j == context.other_joker then
+                    id = i
+                    break
+                end
+            end
+
+            -- only apply to jokers after the 5th
+            if id and id > 5 then
+                return {
+                    xmult = card.ability.extra.xmult
+                }
+            end
         end
     end,
     in_pool = function(self, args)
@@ -1171,11 +1177,11 @@ SMODS.Joker {
     end,
 }
 
--- highcard
+-- Lighthouse
 SMODS.Joker {
-    key = "highcard",
+    key = "lighthouse",
     loc_txt = {
-        name = 'highcard',
+        name = 'Lighthouse',
         text = {
             "For each scored card in",
             "{C:attention}#2#{} get {X:mult,C:white}X#1#{} Mult"
@@ -1184,8 +1190,8 @@ SMODS.Joker {
     blueprint_compat = true,
     rarity = 1,
     cost = 5,
-    pos = { x = 2, y = 13 },
-    pixel_size = { h = 95 / 1.2 },
+    atlas = 'jokers',
+    pos = { x = 2, y = 1 },
     config = { extra = { xmult = 1.5, type = 'High Card' } },
     loc_vars = function(self, info_queue, card)
         return { vars = { card.ability.extra.xmult, card.ability.extra.type } }

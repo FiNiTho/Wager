@@ -714,7 +714,6 @@ create_gamble_card({
 
     calculateEffect = function(card, context)
         if context.before and context.main_eval then
-            G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
             G.E_MANAGER:add_event(Event({
                 trigger = 'before',
                 delay = 0.0,
