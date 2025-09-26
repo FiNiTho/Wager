@@ -102,7 +102,6 @@ SMODS.Joker {
                 "is 0 {C:red,E:1}self distruct{}",
                 "{C:inactive}(Currently {}{C:attention}#2#{}{C:inactive}/#3#){}" }
     },
-    atlas = 'jokers',
     rarity = 3,
     cost = 8,
     pools = {["wagerJokers"] = true},
@@ -113,8 +112,10 @@ SMODS.Joker {
     eternal_compat = true,
     preishable_compat = true,
 
+    atlas = 'jokers',
     pos = {x = 1, y = 0},
     pixel_size = { w = 54, h = 64 },
+
     config = { extra = { Xmult = 3, hunger = 1, maxHunger = 4}},
 
     loc_vars = function(self, info_queue, card)
@@ -1138,15 +1139,19 @@ SMODS.Joker {
         name = 'Dog tag',
         text = {
             "Get a {C:attention}tag{} for",
-            "each {C:attention}jack{} destroyed"
+            "each destroyed",
+            "{C:attention}jack{} or {C:attention}king{}"
         }
     },
-    unlocked = false,
+    unlocked = true,
     blueprint_compat = true,
     rarity = 2,
     cost = 5,
-    pos = { x = 3, y = 8 },
-    soul_pos = { x = 3, y = 9 },
+
+    atlas = 'jokers',
+    pos = {x = 5, y = 2},
+    pixel_size = { w = 57, h = 90 },
+
     config = { extra = { } },
     loc_vars = function(self, info_queue, card)
         return { vars = { } }
@@ -1155,7 +1160,7 @@ SMODS.Joker {
         if context.remove_playing_cards then
             local face_cards = 0
             for _, removed_card in ipairs(context.removed) do
-                if removed_card:get_id() == 11 then 
+                if removed_card:get_id() == 11 or removed_card:get_id() == 13 then 
                     face_cards = face_cards + 1
 
                     local tag_pool = get_current_pool('Tag')
