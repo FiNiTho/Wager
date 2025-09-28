@@ -1132,11 +1132,61 @@ SMODS.Joker {
     end
 }
 
+-- Two faced
+SMODS.Joker {
+    key = "twoFaced",
+    loc_txt = {
+        name = 'Two Faced',
+        text = {
+            "{C:mult}-#1#{} Discards",
+            "everytime you discard",
+            "{C:attention}+#2#{} Hand size",
+        }
+    },
+    unlocked = true,
+    blueprint_compat = true,
+    rarity = 2,
+    cost = 5,
+
+    atlas = 'jokers',
+    pos = {x = 1, y = 1},
+
+    config = { extra = { discards = 2, handSize = 2, currentSize = 0 } },
+    loc_vars = function(self, info_queue, card)
+        return { vars = { card.ability.extra.discards, card.ability.extra.handSize, card.ability.extra.currentSize } }
+    end,
+    calculate = function(self, card, context)
+        if context.discard and not context.blueprint and context.other_card == context.full_hand[#context.full_hand] then
+            G.GAME.round_resets.hands = G.GAME.round_resets.hands + card.ability.extra.handSize
+            G.hand:change_size(card.ability.extra.handSize)
+
+            card.ability.extra.currentSize = card.ability.extra.currentSize + card.ability.extra.handSize
+        end
+
+        if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then
+            G.GAME.round_resets.hands = G.GAME.round_resets.hands - card.ability.extra.currentSize
+            G.hand:change_size(-card.ability.extra.currentSize)
+        end
+    end,
+
+    add_to_deck = function(self, card, from_debuff)
+        G.GAME.round_resets.discards = G.GAME.round_resets.discards - card.ability.extra.discards
+        ease_discard(-card.ability.extra.discards)
+    end,
+    remove_from_deck = function(self, card, from_debuff)
+        G.GAME.round_resets.discards = G.GAME.round_resets.discards + card.ability.extra.discards
+        ease_discard(card.ability.extra.discards)
+
+        G.GAME.round_resets.hands = G.GAME.round_resets.hands - card.ability.extra.currentSize
+        G.hand:change_size(-card.ability.extra.currentSize)
+    end,
+}
+
 -- Dog tag
 SMODS.Joker {
     key = "dogTag",
     loc_txt = {
-        name = 'Dog tag',
+        name = 'Dog Tag',
         text = {
             "Get a {C:attention}tag{} for",
             "each destroyed",

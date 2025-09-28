@@ -1020,7 +1020,7 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
             "{C:green}#3# in #4#{} chance to get {X:cry_cursed,C:white}cursed{}",
             "{C:inactive}(Currently {}{C:attention}#1#{}{C:inactive}/#2#){}"
         },
-        pos = { x = 1, y = 0 },
+        pos = { x = 5, y = 2 },
         config = {
             roundCount = 0, 
             maxroundCount = 1,
@@ -1051,16 +1051,15 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
     })
 end
 
--- TODO: fix card to show the tags in like the info qeue
--- tag gamble card
+-- Gambler Tag card
 if (SMODS.Mods["Cryptid"] or {}).can_load then
     SMODS.Consumable {
-        key = 'Tag',
+        key = 'gamblerTag',
         loc_txt = {
-            name = 'Tag',
+            name = 'Gambler Tag',
             text = {
                 "{C:green}#1# in #2#{} chance to",
-                "gain {C:attention,T:tag_cry_gambler}gambler's{} tag",
+                "gain {C:attention}gambler's{} tag",
             }
         },
         atlas = 'consumables',
@@ -1068,15 +1067,12 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
         cost = 4,
         pools = {},
 
-        pos = { x = 0, y = 0 },
-        config = { odds = 7, extra = 'tag_cry_gambler',
-        },
+        pos = { x = 6, y = 2 },
+        config = { oddss = 7 },
 
         loc_vars = function(self, info_queue, card)
-            info_queue[#info_queue+1] = G.P_SEALS[(card.ability or self.config).extra]
-
             -- makes the odds go up with the probability
-            card.ability.odds = (G.GAME.probabilities.normal or 1) + card.ability.odds
+            card.ability.odds = (G.GAME.probabilities.normal or 1) + card.ability.oddss
             return { vars = {  (G.GAME.probabilities.normal or 1), card.ability.odds, } }
         end,
 
@@ -1088,7 +1084,6 @@ if (SMODS.Mods["Cryptid"] or {}).can_load then
             if pseudorandom('gamble') < G.GAME.probabilities.normal / card.ability.odds then
                 play_sound("wager_gambleMiddleWin")
                 G.GAME.pool_flags.gambleWin = true
-
                 add_tag(Tag("tag_cry_gambler"))
             else
                 attention_text({
