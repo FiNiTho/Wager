@@ -124,6 +124,7 @@ SMODS.Back{
         "Start run with {C:attention,T:v_overstock_norm}Overstock{}",
         "and {C:attention}1{} extra {C:attention}booster pack{}",
         "in each shop",
+        "everything in the shop costs {C:red}20%{} extra"
         },
     },
 	
@@ -137,5 +138,10 @@ SMODS.Back{
 
 	apply = function(self)
         G.GAME.modifiers.extra_boosters = (G.GAME.modifiers.extra_boosters or 0) + 1
+
+        G.GAME.discount_percent = -20
+        for _, v in pairs(G.I.CARD) do
+            if v.set_cost then v:set_cost() end
+        end
     end,
 }

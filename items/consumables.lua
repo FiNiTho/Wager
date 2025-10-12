@@ -220,7 +220,7 @@ SMODS.Consumable {
             odds = 2,
             currentAmount = 5,
             gainAmount = 5,
-            maxAmount = 25,
+            maxAmount = 20,
         },     
     },
 
