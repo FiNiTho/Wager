@@ -7,7 +7,7 @@ whenever i have an idea i put it in the mod
 #
 currently adds:
 <br>
-![image](https://github.com/FiNiTho/Wager/blob/main/assets/aseprite/logo/Schermafbeelding 2025-11-15 002433.png)
+![image](https://github.com/FiNiTho/Wager/blob/main/assets/aseprite/logo/additions2.png)
 <br>
 currently has cross mod content with:
 <br>
