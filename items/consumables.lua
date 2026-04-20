@@ -892,7 +892,7 @@ SMODS.Consumable {
     loc_txt = {
         name = 'Keno',
         text = {
-            "{C:attention}Selected{} joker gets {V:1}Ethernal{}",
+            "{C:attention}Selected{} joker gets {V:1}Eternal{}",
             "sticker {C:green}#1# in #2#{} chance to",
             "also get {V:2}Guardian{} sticker",
         },

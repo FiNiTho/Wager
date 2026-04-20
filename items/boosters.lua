@@ -7,7 +7,7 @@ SMODS.Atlas {
 
 -- small gamble pack
 SMODS.Booster {
-    key = "gambleSmall",
+    key = "gamble_Small",
     cost = 4,
     atlas = "boosters",
     weight = 1,
@@ -44,7 +44,7 @@ SMODS.Booster {
 
 -- small gamble pack
 SMODS.Booster {
-    key = "gambleSmall2",
+    key = "gamble_Small2",
     cost = 4,
     atlas = "boosters",
     weight = 1,
@@ -81,7 +81,7 @@ SMODS.Booster {
 
 -- jumbo gamble pack
 SMODS.Booster {
-    key = "gambleJumbo",
+    key = "gamble_Jumbo",
     cost = 6,
     atlas = "boosters",
     weight = 0.8,
@@ -118,7 +118,7 @@ SMODS.Booster {
 
 -- mega gamble pack
 SMODS.Booster {
-    key = "gambleMega",
+    key = "gamble_Mega",
     cost = 6,
     atlas = "boosters",
     weight = 0.25,
